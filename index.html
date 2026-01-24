@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>El Impostor - El Juego</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="./icon-192.png">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+    <div class="background-blob"></div>
+    <div class="background-blob blob-2"></div>
+
+    <main id="app">
+        <!-- VISTA 0: HOME -->
+        <section id="home-view" class="view active">
+            <header class="logo-container" style="margin-top: -40px;">
+                <div class="icon-wrapper" style="width: 120px; height: 120px; font-size: 4rem;">
+                    <i class="fa-solid fa-user-secret"></i>
+                </div>
+                <h1 style="font-size: 2.5rem; margin-top: 20px;">EL IMPOSTOR</h1>
+                <p style="font-size: 1.1rem;">¿Quién miente mejor?</p>
+            </header>
+
+            <div class="actions" style="width: 100%; gap: 20px;">
+                <button id="btn-mode-local" class="btn-primary pulse">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                    Un solo móvil
+                </button>
+                <button id="btn-mode-online" class="btn-secondary">
+                    <i class="fa-solid fa-wifi"></i>
+                    Cada uno en el suyo
+                </button>
+            </div>
+        </section>
+
+        <!-- VISTA 1.1: JUGADORES -->
+        <section id="players-view" class="view hidden">
+            <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 5px;">
+                <button id="btn-back-home" style="background:none; border:none; color:white; font-size:1.5rem;"><i
+                        class="fa-solid fa-arrow-left"></i></button>
+                <h2 style="margin-left: 15px; font-size: 1.5rem;">Jugadores</h2>
+            </div>
+
+            <p style="text-align:center; color:var(--text-muted); margin-bottom:15px; font-size:0.9rem;">
+                ¿Quiénes van a jugar?
+            </p>
+
+            <div class="config-card"
+                style="display: flex; flex-direction: column; max-height: 65vh; transition: height 0.3s;">
+                <div class="control-group">
+                    <div class="counter-control">
+                        <button id="btn-dec-players"><i class="fa-solid fa-minus"></i></button>
+                        <span id="player-count">4</span>
+                        <button id="btn-inc-players"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+
+                <div class="control-group"
+                    style="flex:1; overflow:hidden; display:flex; flex-direction:column; min-height: 0;">
+                    <div id="players-list" class="players-grid" style="flex:1; overflow-y:auto;">
+                        <!-- Inputs generados por JS -->
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-next-rules" class="btn-primary">
+                SIGUIENTE
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </section>
+
+        <!-- VISTA 1.2: REGLAS -->
+        <section id="rules-view" class="view hidden">
+            <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 20px;">
+                <button id="btn-back-players" style="background:none; border:none; color:white; font-size:1.5rem;"><i
+                        class="fa-solid fa-arrow-left"></i></button>
+                <h2 style="margin-left: 15px; font-size: 1.5rem;">Reglas</h2>
+            </div>
+
+            <div class="config-card">
+                <div class="control-group">
+                    <label>Impostores</label>
+                    <div class="segmented-control">
+                        <button class="segment active" data-impostors="1">1</button>
+                        <button class="segment" data-impostors="2">2</button>
+                        <button class="segment" data-impostors="random"><i class="fa-solid fa-shuffle"></i></button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Modo de Juego</label>
+                    <select id="game-mode">
+                        <option value="classic">Clásico</option>
+                        <option value="confusion">Confusión</option>
+                        <option value="spy">Espía</option>
+                        <option value="unconscious">Inconsciente</option>
+                    </select>
+                </div>
+
+                <div id="mode-description" class="mode-info">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Típico: Todos saben la palabra menos el impostor.</span>
+                </div>
+                <div class="control-group">
+                    <label>Tiempo de Debate</label>
+                    <select id="timer-setting">
+                        <option value="180">3 Minutos</option>
+                        <option value="300">5 Minutos</option>
+                        <option value="600">10 Minutos</option>
+                        <option value="infinite">Sin Límite</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="btn-start" class="btn-primary pulse">
+                JUGAR
+                <i class="fa-solid fa-play"></i>
+            </button>
+        </section>
+
+        <!-- VISTA 2: PASE DE TURNO -->
+        <section id="pass-view" class="view hidden">
+            <div class="card-container">
+                <div class="turn-info">
+                    <p class="sub-label">TURNO DE</p>
+                    <h2 id="current-player-num" class="player-name-display">Alex</h2>
+                </div>
+                <div class="instruction-icon">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                </div>
+                <p style="text-align:center; margin-bottom:20px; color:var(--text-muted)">Pásale el móvil a este jugador
+                </p>
+                <button id="btn-reveal" class="btn-primary">VER MI ROL</button>
+            </div>
+        </section>
+
+        <!-- VISTA 3: REVELACIÓN -->
+        <section id="reveal-view" class="view hidden">
+            <div class="role-card" id="role-card-content">
+                <!-- Contenido dinámico -->
+            </div>
+            <button id="btn-hide" class="btn-secondary">OCULTAR</button>
+        </section>
+
+        <!-- VISTA 4: JUEGO EN CURSO -->
+        <section id="game-view" class="view hidden">
+            <header>
+                <h2>¡A JUGAR!</h2>
+            </header>
+
+            <div class="game-status">
+                <div class="timer">
+                    <span id="timer-display">00:00</span>
+                </div>
+                <p>Turno de debate</p>
+            </div>
+
+            <div class="actions">
+                <button id="btn-new-game" class="btn-primary">NUEVA PARTIDA</button>
+                <button id="btn-home" class="btn-text">Volver al Inicio</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+</body>
+
+</html>
