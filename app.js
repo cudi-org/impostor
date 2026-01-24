@@ -218,7 +218,10 @@ let gameState = {
     playerNames: [], // Array de nombres reales
     currentRoundData: null, // { category, word, decoy, hint }
     timerInterval: null,
-    timerSeconds: 0
+    timerSeconds: 0,
+    expressActive: false,
+    expressTurnIndex: 0, // Index within alivePlayers array
+    alivePlayers: [] // Array of original player indices
 };
 
 // Elementos DOM
@@ -229,7 +232,8 @@ const dom = {
         rules: document.getElementById('rules-view'),
         pass: document.getElementById('pass-view'),
         reveal: document.getElementById('reveal-view'),
-        game: document.getElementById('game-view')
+        game: document.getElementById('game-view'),
+        voting: document.getElementById('voting-view')
     },
     home: {
         btnLocal: document.getElementById('btn-mode-local'),
@@ -247,6 +251,7 @@ const dom = {
         modeSelect: document.getElementById('game-mode'),
         modeDesc: document.getElementById('mode-description'),
         timerSelect: document.getElementById('timer-setting'),
+        expressCheck: document.getElementById('express-mode'),
         btnStart: document.getElementById('btn-start')
     },
     pass: {
@@ -259,8 +264,20 @@ const dom = {
     },
     game: {
         timer: document.getElementById('timer-display'),
+        statusText: document.getElementById('game-status-text'),
+        expressUI: document.getElementById('express-ui'),
+        expressSelection: document.getElementById('express-start-selection'),
+        expressStartList: document.getElementById('express-start-list'),
+        expressActiveGame: document.getElementById('express-active-game'),
+        expressName: document.getElementById('express-player-name'),
+        btnExpressNext: document.getElementById('btn-express-next'),
+        btnExpressVote: document.getElementById('btn-express-vote'),
+        btnVote: document.getElementById('btn-start-vote'),
         btnNew: document.getElementById('btn-new-game'),
         btnHome: document.getElementById('btn-home')
+    },
+    voting: {
+        grid: document.getElementById('voting-grid')
     }
 };
 
@@ -288,6 +305,9 @@ dom.rules.btnStart.addEventListener('click', startGame);
 dom.pass.btnReveal.addEventListener('click', showRole);
 dom.reveal.btnHide.addEventListener('click', nextTurn);
 
+dom.game.btnExpressNext.addEventListener('click', nextExpressTurn);
+dom.game.btnExpressVote.addEventListener('click', startVotingPhase);
+dom.game.btnVote.addEventListener('click', startVotingPhase);
 dom.game.btnNew.addEventListener('click', () => switchView('players'));
 dom.game.btnHome.addEventListener('click', () => switchView('home'));
 
@@ -372,14 +392,17 @@ function updateModeDescription() {
 // Lógica del Juego
 function startGame() {
     // gameState.hintType removed, driven by mode now
-    // Store Timer Setting
+    // Store Timer & Express Setting
     gameState.timerSetting = dom.rules.timerSelect.value;
+    gameState.expressActive = dom.rules.expressCheck.checked;
 
     // 0. Recoger nombres
     gameState.playerNames = [];
+    gameState.alivePlayers = []; // Reset alive players
     for (let i = 0; i < gameState.players; i++) {
         const val = document.getElementById(`player-input-${i}`).value.trim();
         gameState.playerNames.push(val || `Jugador ${i + 1}`);
+        gameState.alivePlayers.push(i); // All alive at start
     }
 
     // 1. Seleccionar Categoria y Palabra
@@ -564,7 +587,279 @@ function nextTurn() {
 
 function startMainGame() {
     switchView('game');
-    startTimer();
+
+    // Check mode
+    if (gameState.expressActive) {
+        startExpressPhase();
+    } else {
+        startDebatePhase();
+    }
+}
+
+function startExpressPhase() {
+    // Initialize Alive Players
+    gameState.alivePlayers = [];
+    for (let i = 0; i < gameState.players; i++) {
+        gameState.alivePlayers.push(i);
+    }
+
+    // UI Setup: Show Selection Screen
+    dom.game.statusText.style.display = 'none';
+    dom.game.expressUI.classList.remove('hidden');
+    dom.game.expressSelection.classList.remove('hidden');
+    dom.game.expressActiveGame.classList.add('hidden');
+
+    // Populate List
+    const list = dom.game.expressStartList;
+    list.innerHTML = '';
+
+    gameState.alivePlayers.forEach((playerIdx) => {
+        const name = gameState.playerNames[playerIdx];
+        const btn = document.createElement('button');
+        btn.className = 'btn-secondary';
+        btn.style.marginTop = '0';
+        btn.textContent = name;
+        btn.onclick = () => selectExpressStarter(playerIdx);
+        list.appendChild(btn);
+    });
+}
+
+function selectExpressStarter(realIndex) {
+    // Find index in alivePlayers array (should match initially)
+    gameState.expressTurnIndex = gameState.alivePlayers.indexOf(realIndex);
+
+    // Switch to Active Game UI
+    dom.game.expressSelection.classList.add('hidden');
+    dom.game.expressActiveGame.classList.remove('hidden');
+
+    runExpressTurn();
+}
+
+function runExpressTurn() {
+    // 1. Check Win Condition: Impostor Win (Low count)
+    if (gameState.alivePlayers.length <= 2) {
+        // Check if impostor is among them.
+        const impostorAlive = gameState.alivePlayers.some(idx => gameState.roles[idx] === 'impostor');
+        if (impostorAlive) {
+            endGame("IMPOSTORES GANAN", "Quedaron solo 2 jugadores.", 'impostors');
+            return;
+        }
+    }
+
+    // Get real player index
+    const realPlayerIdx = gameState.alivePlayers[gameState.expressTurnIndex];
+    const name = gameState.playerNames[realPlayerIdx];
+
+    dom.game.expressName.textContent = name;
+
+    // Timer 10s
+    clearInterval(gameState.timerInterval);
+    gameState.timerSeconds = 10;
+    updateTimerDisplay();
+
+    // Visual Cue
+    dom.game.timer.style.color = 'var(--accent-green)';
+
+    gameState.timerInterval = setInterval(() => {
+        gameState.timerSeconds--;
+        updateTimerDisplay();
+
+        if (gameState.timerSeconds <= 0) {
+            // TIME UP -> ELIMINATION
+            clearInterval(gameState.timerInterval);
+            eliminateCurrentPlayer();
+        }
+    }, 1000);
+}
+
+function nextExpressTurn() {
+    // Stop Timer
+    clearInterval(gameState.timerInterval);
+
+    // Advance Cyclic
+    gameState.expressTurnIndex++;
+    if (gameState.expressTurnIndex >= gameState.alivePlayers.length) {
+        gameState.expressTurnIndex = 0;
+    }
+
+    runExpressTurn();
+}
+
+function eliminateCurrentPlayer() {
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
+
+    const realIdx = gameState.alivePlayers[gameState.expressTurnIndex];
+    const name = gameState.playerNames[realIdx];
+
+    // 1. Remove Player logic
+    // Show elimination message first
+    dom.game.expressName.innerHTML = `<span style="color:red">¡ELIMINADO!</span><br>${name}`;
+
+    // Remove from active list
+    gameState.alivePlayers.splice(gameState.expressTurnIndex, 1);
+
+    // Adjust index for next turn
+    if (gameState.expressTurnIndex >= gameState.alivePlayers.length) {
+        gameState.expressTurnIndex = 0;
+    }
+
+    // 2. Check Win Conditions (AFTER removal)
+    const remainingImpostors = gameState.alivePlayers.filter(idx => gameState.roles[idx] === 'impostor').length;
+
+    if (remainingImpostors === 0) {
+        // ALLIES WIN (No impostors left)
+        endGame("ALIADOS GANAN", "¡Todos los impostores han sido eliminados!", 'allies');
+        return;
+    }
+
+    if (gameState.alivePlayers.length <= 2) {
+        // IMPOSTOR WINS (1 Impostor vs 1 Ally typical case)
+        // Since we checked remainingImpostors != 0 above, we know there is at least 1.
+        endGame("IMPOSTORES GANAN", "Quedan demasiados pocos jugadores.", 'impostors');
+        return;
+    }
+
+    // 3. Continue Game
+    setTimeout(() => {
+        runExpressTurn();
+    }, 2000);
+}
+
+function endGame(title, message, winner) {
+    switchView('game'); // Ensure we are on the game view
+    dom.game.expressUI.classList.add('hidden');
+    dom.game.statusText.style.display = 'block';
+    dom.game.btnVote.style.display = 'none'; // Hide vote button
+
+    dom.game.timer.textContent = "";
+
+    // Color Logic
+    const titleColor = winner === 'allies' ? 'var(--accent-blue)' : 'var(--primary)';
+
+    dom.game.statusText.innerHTML = `
+        <strong style="font-size:2.5rem; color:${titleColor}; text-transform:uppercase; display:block; margin-bottom:10px;">${title}</strong>
+        <p style="font-size:1.1rem; color:var(--text-muted); margin-bottom:30px;">${message}</p>
+    `;
+
+    // Reveal all roles - Cleaner Layout
+    let revealHtml = '<div style="background:rgba(255,255,255,0.05); border-radius:16px; padding:20px; text-align:left;">';
+
+    gameState.playerNames.forEach((n, i) => {
+        const r = gameState.roles[i];
+        const isImp = r === 'impostor';
+
+        revealHtml += `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.1);">
+                <span style="font-weight:600; font-size:1.1rem;">${n}</span>
+                <span style="color:${isImp ? 'var(--primary)' : 'var(--accent-blue)'}; font-weight:700; letter-spacing:1px;">
+                    ${isImp ? 'IMPOSTOR' : 'ALIADO'}
+                </span>
+            </div>
+        `;
+    });
+    revealHtml += '</div>';
+
+    dom.game.statusText.innerHTML += revealHtml;
+}
+
+function startDebatePhase() {
+    clearInterval(gameState.timerInterval);
+    dom.game.expressUI.classList.add('hidden');
+    dom.game.statusText.style.display = 'block';
+    dom.game.statusText.textContent = '¡Votación / Debate Libre!';
+    dom.game.btnVote.style.display = ''; // Restore vote button
+
+    dom.game.timer.style.color = ''; // Reset color
+    // Start standard timer simply for tracking deliberation
+    if (gameState.timerSetting !== 'infinite') {
+        gameState.timerSeconds = parseInt(gameState.timerSetting);
+        startTimer();
+    } else {
+        dom.game.timer.textContent = '∞';
+    }
+}
+
+// VOTING LOGIC
+function startVotingPhase() {
+    clearInterval(gameState.timerInterval); // Stop game timer
+    switchView('voting');
+    renderVotingGrid();
+}
+
+function renderVotingGrid() {
+    const grid = dom.voting.grid;
+    grid.innerHTML = '';
+
+    gameState.alivePlayers.forEach(playerIdx => {
+        const name = gameState.playerNames[playerIdx];
+
+        const card = document.createElement('div');
+        card.className = 'voting-card';
+        card.style.background = 'rgba(255,255,255,0.1)';
+        card.style.padding = '20px';
+        card.style.borderRadius = '16px';
+        card.style.textAlign = 'center';
+        card.style.cursor = 'pointer';
+        card.style.border = '2px solid rgba(255,255,255,0.2)';
+
+        card.innerHTML = `<h3 style="font-size:1.2rem; pointer-events:none;">${name}</h3>`;
+
+        card.onclick = () => handleVote(playerIdx, card);
+        grid.appendChild(card);
+    });
+}
+
+function handleVote(playerIdx, cardElement) {
+    if (navigator.vibrate) navigator.vibrate(50);
+
+    // Reveal Role
+    const role = gameState.roles[playerIdx];
+    const isImpostor = role === 'impostor';
+
+    cardElement.style.transition = 'all 0.5s';
+    cardElement.style.transform = 'rotateY(180deg)';
+    cardElement.style.background = isImpostor ? 'var(--primary)' : 'var(--accent-green)';
+    cardElement.style.borderColor = isImpostor ? 'var(--primary)' : 'var(--accent-green)';
+
+    // Flip content (simplified visual)
+    cardElement.innerHTML = `
+        <i class="fa-solid ${isImpostor ? 'fa-user-secret' : 'fa-check'}" style="font-size:2rem; color:white; transform:rotateY(180deg);"></i>
+        <p style="transform:rotateY(180deg); font-weight:bold; margin-top:5px; color:white;">${isImpostor ? 'IMPOSTOR' : 'ALIADO'}</p>
+    `;
+
+    // Wait and Eliminate
+    setTimeout(() => {
+        cardElement.style.opacity = '0';
+        cardElement.style.transform = 'scale(0)';
+
+        setTimeout(() => {
+            eliminatePlayerById(playerIdx);
+        }, 500);
+    }, 1500);
+}
+
+function eliminatePlayerById(playerIdx) {
+    // Remove from alive list
+    const indexInAlive = gameState.alivePlayers.indexOf(playerIdx);
+    if (indexInAlive > -1) {
+        gameState.alivePlayers.splice(indexInAlive, 1);
+    }
+
+    // Check Win Conditions
+    const remainingImpostors = gameState.alivePlayers.filter(idx => gameState.roles[idx] === 'impostor').length;
+
+    if (remainingImpostors === 0) {
+        endGame("ALIADOS GANAN", "¡Todos los impostores han sido eliminados!", 'allies');
+        return;
+    }
+
+    if (gameState.alivePlayers.length <= 2) {
+        endGame("IMPOSTORES GANAN", "Quedan demasiados pocos jugadores.", 'impostors');
+        return;
+    }
+
+    // Re-render grid (to remove the empty space / shuffle layout)
+    renderVotingGrid();
 }
 
 // Timer Logic
