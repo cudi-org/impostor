@@ -1,4 +1,6 @@
 // Configuración Inicial
+// Configuración Inicial
+let socket = null; // Defined at top to ensure scope availability
 const CONFIG = {
     minPlayers: 3,
     maxPlayers: 20,
@@ -202,6 +204,32 @@ const DATABASE = [
     }
 ];
 
+// Safe LocalStorage Helper
+const safeStorage = {
+    get: (key, def) => {
+        try {
+            return localStorage.getItem(key) || def;
+        } catch (e) {
+            console.warn('LocalStorage access denied', e);
+            return def;
+        }
+    },
+    set: (key, val) => {
+        try {
+            localStorage.setItem(key, val);
+        } catch (e) {
+            console.warn('LocalStorage access denied', e);
+        }
+    },
+    remove: (key) => {
+        try {
+            localStorage.removeItem(key);
+        } catch (e) {
+            console.warn('LocalStorage access denied', e);
+        }
+    }
+};
+
 // Estado del Juego
 let gameState = {
     players: 4,
@@ -218,7 +246,7 @@ let gameState = {
     expressActive: false,
     expressTurnIndex: 0, // Index within alivePlayers array
     alivePlayers: [], // Array of original player indices
-    usedItems: new Set(JSON.parse(localStorage.getItem('impostor_used_items') || '[]')) // Track used words from localStorage
+    usedItems: new Set(JSON.parse(safeStorage.get('impostor_used_items', '[]')))
 };
 
 // Elementos DOM
@@ -245,7 +273,11 @@ const dom = {
         modeSelect: document.getElementById('online-game-mode'),
         catSelect: document.getElementById('online-category'),
         btnDist: document.getElementById('btn-distribute-roles'),
-        status: document.getElementById('lobby-status')
+        status: document.getElementById('lobby-status'),
+        qrContainer: document.getElementById('qrcode'),
+        roomDisplay: document.getElementById('room-display-code'),
+        btnShare: document.getElementById('btn-share-link'),
+        impostorsSegments: document.querySelectorAll('#online-impostors-control .segment')
     },
     home: {
         btnLocal: document.getElementById('btn-mode-local'),
@@ -295,47 +327,55 @@ const dom = {
 
 // Init
 generatePlayerInputs();
+checkUrlParams(); // Check for room in URL
 
 // Home Listeners
-dom.home.btnLocal.addEventListener('click', () => switchView('players'));
-dom.home.btnOnline.addEventListener('click', () => {
+if (dom.home.btnLocal) dom.home.btnLocal.addEventListener('click', () => switchView('players'));
+if (dom.home.btnOnline) dom.home.btnOnline.addEventListener('click', () => {
     switchView('onlineSetup');
 });
 
 // Navigation Listeners
-document.getElementById('btn-back-home').addEventListener('click', () => switchView('home'));
-dom.players.btnNext.addEventListener('click', () => switchView('rules'));
-document.getElementById('btn-back-players').addEventListener('click', () => switchView('players'));
+const btnBackHome = document.getElementById('btn-back-home');
+if (btnBackHome) btnBackHome.addEventListener('click', () => switchView('home'));
+if (dom.players.btnNext) dom.players.btnNext.addEventListener('click', () => switchView('rules'));
+const btnBackPlayers = document.getElementById('btn-back-players');
+if (btnBackPlayers) btnBackPlayers.addEventListener('click', () => switchView('players'));
 
 // Setup Listeners
-dom.players.btnDec.addEventListener('click', () => updatePlayers(-1));
-dom.players.btnInc.addEventListener('click', () => updatePlayers(1));
-dom.rules.segments.forEach(seg => seg.addEventListener('click', (e) => setImpostors(e.target)));
-dom.rules.modeSelect.addEventListener('change', updateModeDescription);
-dom.rules.btnStart.addEventListener('click', startGame);
+if (dom.players.btnDec) dom.players.btnDec.addEventListener('click', () => updatePlayers(-1));
+if (dom.players.btnInc) dom.players.btnInc.addEventListener('click', () => updatePlayers(1));
+if (dom.rules.segments) dom.rules.segments.forEach(seg => seg.addEventListener('click', (e) => setImpostors(e.target)));
+if (dom.rules.modeSelect) dom.rules.modeSelect.addEventListener('change', updateModeDescription);
+if (dom.rules.btnStart) dom.rules.btnStart.addEventListener('click', startGame);
 
-dom.pass.btnReveal.addEventListener('click', showRole);
-dom.reveal.btnHide.addEventListener('click', () => {
-    if (socket) {
+if (dom.pass.btnReveal) dom.pass.btnReveal.addEventListener('click', showRole);
+if (dom.reveal.btnHide) dom.reveal.btnHide.addEventListener('click', () => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
         switchView('onlineLobby');
     } else {
         nextTurn();
     }
 });
 
-dom.game.btnExpressNext.addEventListener('click', nextExpressTurn);
-dom.game.btnExpressVote.addEventListener('click', startVotingPhase);
-dom.game.btnVote.addEventListener('click', startVotingPhase);
-dom.game.btnNew.addEventListener('click', () => switchView('players'));
-dom.game.btnHome.addEventListener('click', () => switchView('home'));
+if (dom.game.btnExpressNext) dom.game.btnExpressNext.addEventListener('click', nextExpressTurn);
+if (dom.game.btnExpressVote) dom.game.btnExpressVote.addEventListener('click', startVotingPhase);
+if (dom.game.btnVote) dom.game.btnVote.addEventListener('click', startVotingPhase);
+if (dom.game.btnNew) dom.game.btnNew.addEventListener('click', () => switchView('players'));
+if (dom.game.btnHome) dom.game.btnHome.addEventListener('click', () => switchView('home'));
 
 // Online Listeners
-dom.online.btnBack.addEventListener('click', () => switchView('home'));
-dom.online.btnJoin.addEventListener('click', joinRoom);
-dom.online.btnLeave.addEventListener('click', leaveRoom);
-dom.online.btnDist.addEventListener('click', () => {
+if (dom.online.btnBack) dom.online.btnBack.addEventListener('click', () => switchView('home'));
+if (dom.online.btnJoin) dom.online.btnJoin.addEventListener('click', joinRoom);
+if (dom.online.btnLeave) dom.online.btnLeave.addEventListener('click', leaveRoom);
+if (dom.online.btnDist) dom.online.btnDist.addEventListener('click', () => {
+    console.log("Btn Dist click");
+    // alert("Boton pulsado");
     iniciarReparto(dom.online.modeSelect.value, dom.online.catSelect.value);
 });
+
+if (dom.online.btnShare) dom.online.btnShare.addEventListener('click', shareLink);
+if (dom.online.impostorsSegments) dom.online.impostorsSegments.forEach(seg => seg.addEventListener('click', (e) => setOnlineImpostors(e.target)));
 
 // Funciones de Configuración
 function updatePlayers(change) {
@@ -436,6 +476,9 @@ function startGame() {
     let attempts = 0;
     const maxAttempts = 200; // Evitar bucle infinito si se acaban las palabras
 
+    // Ensure set exists (fix for potential local storage clutter or init issues)
+    if (!gameState.usedItems) gameState.usedItems = new Set();
+
     do {
         catIdx = Math.floor(Math.random() * DATABASE.length);
         itemIdx = Math.floor(Math.random() * DATABASE[catIdx].items.length);
@@ -443,15 +486,15 @@ function startGame() {
         attempts++;
     } while (gameState.usedItems.has(key) && attempts < maxAttempts);
 
-    // Si hemos agotado intentos (probablemente se acabaron las palabras), reiniciamos historial
+    // Si hemos agotados intentos (probablemente se acabaron las palabras), reiniciamos historial
     if (attempts >= maxAttempts) {
         gameState.usedItems.clear();
         console.log("Todas las palabras usadas. Reiniciando historial.");
-        localStorage.removeItem('impostor_used_items');
+        safeStorage.remove('impostor_used_items');
     }
 
     gameState.usedItems.add(key);
-    localStorage.setItem('impostor_used_items', JSON.stringify([...gameState.usedItems]));
+    safeStorage.set('impostor_used_items', JSON.stringify([...gameState.usedItems]));
 
     const catData = DATABASE[catIdx];
     const itemData = catData.items[itemIdx];
@@ -942,28 +985,70 @@ function updateTimerDisplay() {
 }
 
 // Navegación
+// Navegación ROBUSTA
 function switchView(viewName) {
-    Object.values(dom.views).forEach(el => {
+
+    const map = {
+        'home': 'home-view',
+        'players': 'players-view',
+        'rules': 'rules-view',
+        'pass': 'pass-view',
+        'reveal': 'reveal-view',
+        'game': 'game-view',
+        'voting': 'voting-view',
+        'onlineSetup': 'online-setup-view',
+        'onlineLobby': 'online-lobby-view'
+    };
+
+    const targetId = map[viewName];
+    if (!targetId) return;
+
+    // 1. Ocultar TODO
+    document.querySelectorAll('.view').forEach(el => {
+        el.style.display = 'none';
         el.classList.remove('active');
         el.classList.add('hidden');
     });
 
-    const target = dom.views[viewName];
-    target.classList.remove('hidden');
-    void target.offsetWidth;
-    target.classList.add('active');
+    // 2. Mostrar TARGET
+    const targetEl = document.getElementById(targetId);
+    if (targetEl) {
+        targetEl.classList.remove('hidden');
+        targetEl.classList.add('active');
+
+        // Inline styles to OVERRIDE everything
+        targetEl.style.display = 'flex';
+        targetEl.style.opacity = '1';
+        targetEl.style.visibility = 'visible';
+        targetEl.style.zIndex = '9999'; // Force on top
+        targetEl.style.pointerEvents = 'all';
+    } else {
+        alert("ERROR: No se encuentra la vista " + targetId);
+    }
 }
 
 // ==========================================
 // MODO ONLINE (WEBSOCKETS)
 // ==========================================
 
-let socket = null;
 let onlinePlayers = [];
 let isHost = false;
 let myPeerId = '';
 let currentRoom = '';
+let onlineImpostorsSetting = 1;
 const WS_URL = 'wss://impostor-signaling.onrender.com';
+
+function checkUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const room = params.get('room');
+    if (room) {
+        dom.online.inpRoom.value = room;
+        // Auto-switch to name input if room found
+        switchView('onlineSetup');
+        dom.online.inpRoom.disabled = true; // Lock room input if from link
+        dom.online.inpAlias.focus();
+    }
+}
 
 function joinRoom() {
     const roomName = dom.online.inpRoom.value.trim();
@@ -1001,6 +1086,12 @@ function joinRoom() {
             enterLobby();
         }
         else if (data.type === 'joined') {
+            // If we joined, we are NOT host by default, but if we are the first one?
+            // Server logic says: if room exists, you join.
+            // If user WANTED to be host but room existed, they are guest.
+            // But if they are re-joining their own room?
+            // The server doesn't persist 'host' token on pure ws reconnect without session.
+            // For now, assume guest.
             isHost = false;
             myPeerId = data.peerId;
             enterLobby();
@@ -1050,25 +1141,73 @@ function leaveRoom() {
 
 function enterLobby() {
     switchView('onlineLobby');
-    onlinePlayers = []; // Reset locally, wait for sync or assume we are alone first if host
-    // Actually, if we are host, we are alone.
+    onlinePlayers = [];
+
+    // QR Generation
+    generateLobbyQR();
 
     if (isHost) {
-        dom.online.hostControls.classList.remove('hidden');
-        dom.online.status.textContent = "Eres el Anfitrión. Espera a los jugadores y reparte.";
-        // Populate categories
+        if (dom.online.hostControls) dom.online.hostControls.classList.remove('hidden');
+        if (dom.online.status) dom.online.status.textContent = "Eres el Anfitrión. Espera a los jugadores y reparte.";
         populateOnlineCategories();
     } else {
-        dom.online.hostControls.classList.add('hidden');
-        dom.online.status.textContent = "Esperando al anfitrión...";
+        if (dom.online.hostControls) dom.online.hostControls.classList.add('hidden');
+        if (dom.online.status) dom.online.status.textContent = "Esperando al anfitrión...";
     }
 
     actualizarListaUI();
 }
 
+function generateLobbyQR() {
+    const link = `${window.location.origin}${window.location.pathname}?room=${currentRoom}`;
+    dom.online.qrContainer.innerHTML = ''; // Clear prev
+    new QRCode(dom.online.qrContainer, {
+        text: link,
+        width: 128,
+        height: 128,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+    dom.online.roomDisplay.textContent = `SALA: ${currentRoom}`;
+}
+
+function shareLink() {
+    const link = `${window.location.origin}${window.location.pathname}?room=${currentRoom}`;
+    if (navigator.share) {
+        navigator.share({
+            title: 'Únete a El Impostor',
+            text: `Entra a mi sala ${currentRoom} para jugar.`,
+            url: link
+        }).catch(err => console.log('Error sharing', err));
+    } else {
+        navigator.clipboard.writeText(link).then(() => {
+            alert('Enlace copiado al portapapeles');
+        });
+    }
+}
+
+function setOnlineImpostors(target) {
+    const btn = target.closest('.segment');
+    if (!btn) return;
+
+    dom.online.impostorsSegments.forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+
+    const val = btn.dataset.impostors;
+    onlineImpostorsSetting = val === 'random' ? 'random' : parseInt(val);
+}
+
 function populateOnlineCategories() {
     const sel = dom.online.catSelect;
     sel.innerHTML = '';
+
+    // Add "Todas" option
+    const optAll = document.createElement('option');
+    optAll.value = 'all';
+    optAll.textContent = 'Todas (Aleatorio)';
+    sel.appendChild(optAll);
+
     DATABASE.forEach(cat => {
         const opt = document.createElement('option');
         opt.value = cat.category;
@@ -1098,69 +1237,120 @@ function actualizarListaUI() {
 function iniciarReparto(modoJuego, categoriaSeleccionada) {
     if (!isHost) return;
 
-    // 1. Select Word
-    const categoria = DATABASE.find(c => c.category === categoriaSeleccionada);
-    const item = categoria.items[Math.floor(Math.random() * categoria.items.length)];
+    // console.log("Iniciando reparto...", { modoJuego, categoriaSeleccionada });
 
-    // 2. Pick Impostor
-    const allPlayers = [{ id: myPeerId, alias: 'Tu (Host)' }, ...onlinePlayers];
+    try {
+        // 1. Select Word
+        let categoria;
 
-    const indiceImpostor = Math.floor(Math.random() * allPlayers.length);
-
-    // 3. Send
-    allPlayers.forEach((jugador, index) => {
-        const soyElImpostor = (index === indiceImpostor);
-
-        let msg = {
-            appType: 'cudi-sync',
-            type: 'signal',
-            role: '',
-            word: '',
-            hint: '' //, targetId for remote
-        };
-
-        if (jugador.id !== myPeerId) {
-            msg.targetId = jugador.id;
-        }
-
-        switch (modoJuego) {
-            case 'Clásico':
-                msg.role = soyElImpostor ? 'IMPOSTOR' : 'ALIADO';
-                msg.word = soyElImpostor ? '???' : item.word;
-                msg.hint = soyElImpostor ? item.hint : '';
-                break;
-
-            case 'Confusión':
-                msg.role = soyElImpostor ? 'IMPOSTOR' : 'ALIADO';
-                msg.word = soyElImpostor ? item.decoy : item.word;
-                break;
-
-            case 'Inconsciente':
-                msg.role = 'ALIADO';
-                msg.word = soyElImpostor ? item.decoy : item.word;
-                break;
-
-            case 'Espía':
-                msg.role = soyElImpostor ? 'IMPOSTOR' : 'ALIADO';
-                msg.word = soyElImpostor ? '???' : item.word;
-                break;
-        }
-
-        if (jugador.id === myPeerId) {
-            mostrarPantallaRol(msg.role, msg.word, msg.hint);
+        if (categoriaSeleccionada === 'all') {
+            categoria = DATABASE[Math.floor(Math.random() * DATABASE.length)];
         } else {
-            socket.send(JSON.stringify(msg));
+            categoria = DATABASE.find(c => c.category === categoriaSeleccionada);
         }
-    });
+
+        if (!categoria) {
+            throw new Error("Categoría no encontrada: " + categoriaSeleccionada);
+        }
+
+        const item = categoria.items[Math.floor(Math.random() * categoria.items.length)];
+
+        // 2. Pick Impostor(s)
+        const allPlayers = [{ id: myPeerId, alias: 'Tu (Host)' }, ...onlinePlayers];
+        const totalPlayers = allPlayers.length;
+
+        // Calculate number of impostors
+        let numImpostors = 1;
+        if (onlineImpostorsSetting === 'random') {
+            // Same logic as local
+            let maxPossible = totalPlayers - 1;
+            let effectiveMax = Math.min(maxPossible, (totalPlayers >= 6 ? 5 : Math.max(1, Math.floor((totalPlayers - 1) / 2))));
+            numImpostors = Math.floor(Math.random() * effectiveMax) + 1;
+        } else {
+            numImpostors = onlineImpostorsSetting;
+        }
+
+        if (numImpostors >= totalPlayers) numImpostors = totalPlayers - 1;
+
+        // Assign Roles
+        let rolesMap = new Array(totalPlayers).fill('ALIADO');
+        let assigned = 0;
+        while (assigned < numImpostors) {
+            let idx = Math.floor(Math.random() * totalPlayers);
+            if (rolesMap[idx] === 'ALIADO') {
+                rolesMap[idx] = 'IMPOSTOR';
+                assigned++;
+            }
+        }
+
+
+        // 3. Send
+        allPlayers.forEach((jugador, index) => {
+            const soyElImpostor = (rolesMap[index] === 'IMPOSTOR');
+
+            let msg = {
+                appType: 'cudi-sync',
+                type: 'signal',
+                role: '',
+                word: '',
+                hint: '' //, targetId for remote
+            };
+
+            if (jugador.id !== myPeerId) {
+                msg.targetId = jugador.id;
+            }
+
+            switch (modoJuego) {
+                case 'Clásico':
+                    msg.role = soyElImpostor ? 'IMPOSTOR' : 'ALIADO';
+                    msg.word = soyElImpostor ? '???' : item.word;
+                    msg.hint = soyElImpostor ? item.hint : '';
+                    break;
+
+                case 'Confusión':
+                    msg.role = soyElImpostor ? 'IMPOSTOR' : 'ALIADO';
+                    msg.word = soyElImpostor ? item.decoy : item.word;
+                    break;
+
+                case 'Inconsciente':
+                    msg.role = 'ALIADO';
+                    msg.word = soyElImpostor ? item.decoy : item.word;
+                    break;
+
+                case 'Espía':
+                    msg.role = soyElImpostor ? 'IMPOSTOR' : 'ALIADO';
+                    msg.word = soyElImpostor ? '???' : item.word;
+                    break;
+            }
+
+            if (jugador.id === myPeerId) {
+                mostrarPantallaRol(msg.role, msg.word, msg.hint);
+            } else {
+                socket.send(JSON.stringify(msg));
+            }
+        });
+
+    } catch (err) {
+        console.error("Error en iniciarReparto:", err);
+        alert("Error al repartir roles: " + err.message);
+    }
 }
 
 function mostrarPantallaRol(role, word, hint) {
+    console.log("mostrarPantallaRol called", { role, word, hint });
+
     let roleTitle = role === 'IMPOSTOR' ? 'ERES EL IMPOSTOR' : 'ALIADO';
     let roleIcon = role === 'IMPOSTOR' ? 'fa-user-secret' : 'fa-mask';
     let content = '';
     let themeClass = role === 'IMPOSTOR' ? 'impostor-theme' : '';
 
-    dom.reveal.card.className = 'role-card ' + themeClass;
+    const cardEl = document.getElementById('role-card-content');
+    if (!cardEl) {
+        console.error("CRITICAL: role-card-content not found in DOM");
+        return;
+    }
+
+    cardEl.className = 'role-card ' + themeClass;
 
     if (role === 'IMPOSTOR') {
         if (word === '???') {
@@ -1183,9 +1373,7 @@ function mostrarPantallaRol(role, word, hint) {
                 <p class="instruction">¡Es falsa! Úsala para confundir.</p>
             `;
         }
-
         if (navigator.vibrate) navigator.vibrate(200);
-
     } else {
         content = `
              <p class="role-subtitle">Tu Palabra:</p>
@@ -1194,18 +1382,20 @@ function mostrarPantallaRol(role, word, hint) {
          `;
     }
 
-    dom.reveal.card.innerHTML = `
-        <h2 class="pulse">Recibiendo Rol...</h2>
+    // SIN ANIMACIÓN (Debug para arreglar pantalla negra)
+    // Renderizado inmediato y directo
+    console.log("Renderizando contenido final DIRECTAMENTE...");
+
+    // 1. Asignar HTML
+    const finalHTML = `
+        <i class="fa-solid ${roleIcon} role-icon"></i>
+        <h2>${roleTitle}</h2>
+        ${content}
+        <div style="margin-top:20px; font-size:0.8rem; opacity:0.7;">Modo Online</div>
     `;
 
-    switchView('reveal');
+    cardEl.innerHTML = finalHTML;
 
-    setTimeout(() => {
-        dom.reveal.card.innerHTML = `
-            <i class="fa-solid ${roleIcon} role-icon"></i>
-            <h2>${roleTitle}</h2>
-            ${content}
-            <div style="margin-top:20px; font-size:0.8rem; opacity:0.7;">Modo Online</div>
-        `;
-    }, 2000);
+    // 2. Cambiar Vista
+    switchView('reveal');
 }

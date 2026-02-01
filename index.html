@@ -13,6 +13,7 @@
     <link rel="icon" type="image/png" href="./icon-192.png">
     <link rel="apple-touch-icon" href="./icon-192.png">
     <link rel="manifest" href="manifest.json">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 
 <body>
@@ -71,6 +72,19 @@
             </div>
 
             <div class="config-card">
+                <!-- QR y Share para todos (o solo host? Mejor todos para invitar) -->
+                <div id="room-share-info"
+                    style="text-align:center; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1);">
+                    <div id="qrcode"
+                        style="display:flex; justify-content:center; margin-bottom:15px; padding:10px; background:white; border-radius:8px; width:fit-content; margin-left:auto; margin-right:auto;">
+                    </div>
+                    <p id="room-display-code"
+                        style="font-size:1.2rem; font-weight:bold; letter-spacing:2px; margin-bottom:10px;"></p>
+                    <button id="btn-share-link" class="btn-secondary" style="font-size:0.9rem; padding:8px 15px;">
+                        <i class="fa-solid fa-share-nodes"></i> Copiar Enlace
+                    </button>
+                </div>
+
                 <p style="text-align:center; color:var(--accent-green); margin-bottom:15px;">
                     <i class="fa-solid fa-users"></i> Jugadores Conectados
                 </p>
@@ -81,6 +95,15 @@
 
             <!-- Botón SOLO para el HOST -->
             <div id="host-controls" class="hidden">
+                <div class="control-group">
+                    <label>Impostores</label>
+                    <div class="segmented-control" id="online-impostors-control">
+                        <button class="segment active" data-impostors="1">1</button>
+                        <button class="segment" data-impostors="2">2</button>
+                        <button class="segment" data-impostors="random"><i class="fa-solid fa-shuffle"></i></button>
+                    </div>
+                </div>
+
                 <div class="control-group">
                     <label>Modo de Juego</label>
                     <select id="online-game-mode"
@@ -294,9 +317,11 @@
 
     <script src="app.js"></script>
     <script>
-        // Registrar Service Worker
+        // Registrar Service Worker (Safe for file:// protocol)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js');
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW registrado', reg))
+                .catch(err => console.log('SW error (normal si es local/file):', err));
         }
     </script>
 </body>
