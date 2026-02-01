@@ -25,183 +25,179 @@ const DATABASE = [
             { word: 'Donut', decoy: 'Croissant', hint: 'Bollo de repostería' },
             { word: 'Tortilla', decoy: 'Revuelto', hint: 'Se hace con huevos' },
             { word: 'Cerveza', decoy: 'Vino', hint: 'Bebida con alcohol' },
-            { word: 'Café', decoy: 'Té', hint: 'Bebida con cafeína/teína' },
-            { word: 'Palomitas', decoy: 'Patatas Fritas', hint: 'Snack de cine' }
+            { word: 'Café', decoy: 'Té', hint: 'Bebida con cafeína' },
+            { word: 'Palomitas', decoy: 'Patatas Fritas', hint: 'Snack de cine' },
+            { word: 'Gazpacho', decoy: 'Salmorejo', hint: 'Sopa fría típica' },
+            { word: 'Churros', decoy: 'Porras', hint: 'Se mojan en chocolate' },
+            { word: 'Kebab', decoy: 'Falafel', hint: 'Comida rápida de Oriente Medio' },
+            { word: 'Croquetas', decoy: 'Empanadillas', hint: 'Fritura casera deliciosa' }
         ]
     },
     {
-        category: 'Lugares y Viajes',
+        category: 'Galicia (Concellos, Montes e Cultura)',
         items: [
-            { word: 'Playa', decoy: 'Piscina', hint: 'Hay agua para nadar' },
-            { word: 'Montaña', decoy: 'Colina', hint: 'Lugar elevado natural' },
-            { word: 'Cine', decoy: 'Teatro', hint: 'Se ven espectáculos' },
-            { word: 'Biblioteca', decoy: 'Librería', hint: 'Hay muchos libros' },
-            { word: 'Gimnasio', decoy: 'Parque', hint: 'Lugar para ejercitarse' },
-            { word: 'Aeropuerto', decoy: 'Estación', hint: 'Para viajar lejos' },
-            { word: 'Hospital', decoy: 'Farmacia', hint: 'Relacionado con salud' },
-            { word: 'Zoológico', decoy: 'Acuario', hint: 'Lugar para ver animales' },
-            { word: 'Museo', decoy: 'Galería', hint: 'Se expone arte o historia' },
-            { word: 'Desierto', decoy: 'Sabana', hint: 'Lugar con poca agua' },
-            { word: 'Selva', decoy: 'Bosque', hint: 'Lugar con mucha vegetación' },
-            { word: 'Isla', decoy: 'Península', hint: 'Rodeado de mar' }
-        ]
-    },
-    {
-        category: 'Animales',
-        items: [
-            { word: 'Perro', decoy: 'Lobo', hint: 'Es un cánido' },
-            { word: 'Gato', decoy: 'Tigre', hint: 'Es un felino' },
-            { word: 'Elefante', decoy: 'Rinoceronte', hint: 'Animal grande y gris' },
-            { word: 'León', decoy: 'Guepardo', hint: 'Rey de la selva' },
-            { word: 'Delfín', decoy: 'Ballena', hint: 'Mamífero acuático' },
-            { word: 'Pingüino', decoy: 'Pato', hint: 'Ave que nada' },
-            { word: 'Águila', decoy: 'Halcón', hint: 'Ave rapaz' },
-            { word: 'Canguro', decoy: 'Koala', hint: 'Animal de Australia' },
-            { word: 'Serpiente', decoy: 'Lagarto', hint: 'Es un reptil' },
-            { word: 'Tiburón', decoy: 'Orca', hint: 'Depredador marino' },
-            { word: 'Abeja', decoy: 'Avispa', hint: 'Insecto volador' },
-            { word: 'Caballo', decoy: 'Cebra', hint: 'Animal de cuatro patas' }
+            { word: 'Vilagarcía de Arousa', decoy: 'Vilanova de Arousa', hint: 'Concello na ría de Arousa' },
+            { word: 'Catoira', decoy: 'Padrón', hint: 'Relacionado co río Ulla ou as torres' },
+            { word: 'Caldas de Reis', decoy: 'Cuntis', hint: 'Tradición de augas termais e balnearios' },
+            { word: 'Ferrol', decoy: 'Narón', hint: 'Historia naval e ría propia' },
+            { word: 'Vigo', decoy: 'A Coruña', hint: 'Gran cidade galega con moita costa' },
+            { word: 'A Estrada', decoy: 'Lalín', hint: 'Concello grande do interior con moita feira' },
+            { word: 'Ribeira', decoy: 'A Pobra do Caramiñal', hint: 'Concello mariñeiro no extremo da ría' },
+            { word: 'Pontecesures', decoy: 'Valga', hint: 'Concello que limita coa provincia da Coruña' },
+            { word: 'Armenteira', decoy: 'Meis', hint: 'Lugar famoso polo mosteiro e a ruta da auga' },
+            { word: 'Xiabre', decoy: 'Lobeira', hint: 'Monte con antenas e vistas sobre Vilagarcía' },
+            { word: 'Lobeira', decoy: 'Siradella', hint: 'Miradoiro natural con vistas espectaculares da ría' },
+            { word: 'A Curota', decoy: 'A Curotiña', hint: 'Punto máis alto para ver toda a ría de Arousa' },
+            { word: 'Manzaneda', decoy: 'Cabeza de Manzaneda', hint: 'Lugar de Galicia famoso pola neve e o esquí' },
+            { word: 'Castroagudín', decoy: 'Carril', hint: 'Aldea elevada con vistas á ría' },
+            { word: 'Santiago de Compostela', decoy: 'Lugo', hint: 'Cidade histórica con moito patrimonio' },
+            { word: 'Sanxenxo', decoy: 'Portonovo', hint: 'Turismo de praia masivo e festa' },
+            { word: 'Cambados', decoy: 'O Grove', hint: 'Famoso polo viño albariño ou marisco' },
+            { word: 'Licor Café', decoy: 'Crema de Oruxo', hint: 'Bebida espirituosa galega típica' },
+            { word: 'Gaita', decoy: 'Pandeireta', hint: 'Instrumento musical tradicional galego' },
+            { word: 'Santa Compaña', decoy: 'Meiga', hint: 'Folclore e lendas galegas' },
+            { word: 'Islas Cíes', decoy: 'Isla de Ons', hint: 'Paraíso natural protexido na costa' }
         ]
     },
     {
         category: 'Deportes',
         items: [
-            { word: 'Fútbol', decoy: 'Futsal', hint: 'Se juega con los pies' },
-            { word: 'Baloncesto', decoy: 'Voleibol', hint: 'Se juega con las manos y balón' },
-            { word: 'Tenis', decoy: 'Pádel', hint: 'Usa raqueta/pala' },
-            { word: 'Natación', decoy: 'Waterpolo', hint: 'Deporte en el agua' },
-            { word: 'Boxeo', decoy: 'Karate', hint: 'Deporte de contacto' },
-            { word: 'Golf', decoy: 'Hockey', hint: 'Se golpea una bola pequeña' },
-            { word: 'Ciclismo', decoy: 'Motociclismo', hint: 'Deporte sobre ruedas' },
-            { word: 'Ajedrez', decoy: 'Damas', hint: 'Deporte de mesa y mente' },
-            { word: 'Surf', decoy: 'Skate', hint: 'Deporte sobre tabla' },
-            { word: 'Rugby', decoy: 'Fútbol Americano', hint: 'Deporte de mucho contacto' }
+            { word: 'Fútbol', decoy: 'Fútbol Sala', hint: 'Deporte de 11 contra 11 con balón' },
+            { word: 'Baloncesto', decoy: 'Balonmano', hint: 'Se juega con las manos y hay canastas o porterías' },
+            { word: 'Tenis', decoy: 'Pádel', hint: 'Deporte de raqueta o pala' },
+            { word: 'Fórmula 1', decoy: 'MotoGP', hint: 'Competición de velocidad con motor' },
+            { word: 'Natación', decoy: 'Waterpolo', hint: 'Deporte que se practica en una piscina' },
+            { word: 'Ciclismo', decoy: 'Triatlón', hint: 'Deporte que requiere una bicicleta' },
+            { word: 'Boxeo', decoy: 'Karate', hint: 'Deporte de contacto y combate' },
+            { word: 'Golf', decoy: 'Minigolf', hint: 'Se golpea una bola pequeña hacia un hoyo' },
+            { word: 'Rugby', decoy: 'Fútbol Americano', hint: 'Deporte de contacto con balón ovalado' },
+            { word: 'Voleibol', decoy: 'Vóley Playa', hint: 'Se golpea un balón por encima de una red' },
+            { word: 'Surf', decoy: 'Windsurf', hint: 'Deporte sobre una tabla en el agua' },
+            { word: 'Ajedrez', decoy: 'Damas', hint: 'Deporte mental sobre un tablero' },
+            { word: 'Bádminton', decoy: 'Tenis de mesa', hint: 'Deporte de raqueta muy rápido' },
+            { word: 'Esquí', decoy: 'Snowboard', hint: 'Deporte de invierno en la nieve' },
+            { word: 'Patinaje sobre hielo', decoy: 'Hockey sobre hielo', hint: 'Se practica con cuchillas en los pies sobre pista fría' },
+            { word: 'Atletismo', decoy: 'Running', hint: 'Consiste en correr, saltar o lanzar' },
+            { word: 'Gimnasia Rítmica', decoy: 'Patinaje Artístico', hint: 'Deporte estético con música y coreografía' },
+            { word: 'Escalada', decoy: 'Alpinismo', hint: 'Consiste en subir por paredes o montañas' },
+            { word: 'Esgrima', decoy: 'Kendo', hint: 'Combate con armas blancas protegidas' },
+            { word: 'Tiro con arco', decoy: 'Tiro olímpico', hint: 'Deporte de puntería con un objetivo' },
+            { word: 'Billar', decoy: 'Bolos', hint: 'Juego de puntería con bolas' },
+            { word: 'Skateboarding', decoy: 'BMX', hint: 'Deporte urbano de trucos y acrobacias' },
+            { word: 'Piragüismo', decoy: 'Remo', hint: 'Deporte de navegación en embarcación ligera' },
+            { word: 'Judo', decoy: 'Taekwondo', hint: 'Arte marcial olímpica de combate' },
+            { word: 'Futbolín', decoy: 'Billar', hint: 'Juego de mesa de bar con barras y figuras' },
+            { word: 'Rally', decoy: 'Fórmula 1', hint: 'Competición de automovilismo por tramos o circuitos' },
+            { word: 'Motocross', decoy: 'Trial', hint: 'Deporte de motos por terreno de tierra o obstáculos' },
+            { word: 'Dardos', decoy: 'Diana', hint: 'Juego de puntería lanzando proyectiles pequeños' },
+            { word: 'Paintball', decoy: 'Airsoft', hint: 'Juego de estrategia con armas que disparan proyectiles' }
         ]
     },
     {
-        category: 'Entretenimiento y Ficción',
+        category: 'Países y Destinos',
         items: [
-            { word: 'Batman', decoy: 'Iron Man', hint: 'Héroe millonario' },
-            { word: 'Superman', decoy: 'Thor', hint: 'Vuela y es muy fuerte' },
-            { word: 'Spiderman', decoy: 'Deadpool', hint: 'Lleva traje rojo/traje ajustado' },
-            { word: 'Wonder Woman', decoy: 'Capitana Marvel', hint: 'Heroína poderosa' },
-            { word: 'Hulk', decoy: 'Shrek', hint: 'Es grande y verde' },
-            { word: 'Flash', decoy: 'Sonic', hint: 'Es muy rápido' },
-            { word: 'Harry Potter', decoy: 'Merlín', hint: 'Es un mago famoso' },
-            { word: 'Darth Vader', decoy: 'Voldemort', hint: 'Villano icónico' },
-            { word: 'Mickey Mouse', decoy: 'Bugs Bunny', hint: 'Personaje de dibujos animados' },
-            { word: 'Mario Bros', decoy: 'Sonic', hint: 'Personaje de videojuegos' },
-            { word: 'Pikachu', decoy: 'Agumon', hint: 'Criatura que evoluciona' }
+            { word: 'España', decoy: 'Portugal', hint: 'País de la Península Ibérica' },
+            { word: 'Francia', decoy: 'Italia', hint: 'País europeo muy turístico' },
+            { word: 'Japón', decoy: 'China', hint: 'País asiático del sol naciente' },
+            { word: 'Estados Unidos', decoy: 'Canadá', hint: 'Potencia de América del Norte' },
+            { word: 'Brasil', decoy: 'Argentina', hint: 'País más grande de Sudamérica' },
+            { word: 'Egipto', decoy: 'Marruecos', hint: 'Famoso por sus pirámides' },
+            { word: 'Australia', decoy: 'Nueva Zelanda', hint: 'País y continente lejano en Oceanía' },
+            { word: 'Alemania', decoy: 'Austria', hint: 'País centroeuropeo de habla germana' },
+            { word: 'Reino Unido', decoy: 'Irlanda', hint: 'Estado insular del norte de Europa' },
+            { word: 'India', decoy: 'Pakistán', hint: 'País con muchísima población' },
+            { word: 'Tailandia', decoy: 'Vietnam', hint: 'Destino exótico del sudeste asiático' },
+            { word: 'Noruega', decoy: 'Suecia', hint: 'País escandinavo con fiordos' },
+            { word: 'México', decoy: 'Colombia', hint: 'País que habla español en América' },
+            { word: 'Grecia', decoy: 'Turquía', hint: 'Cuna de la civilización con muchas islas' },
+            { word: 'Suiza', decoy: 'Bélgica', hint: 'País europeo conocido por su chocolate o bancos' },
+            { word: 'Cuba', decoy: 'Puerto Rico', hint: 'Isla del Caribe con mucha historia y música' },
+            { word: 'Islandia', decoy: 'Groenlandia', hint: 'Lugar muy frío cerca del Ártico con paisajes naturales' },
+            { word: 'Corea del Sur', decoy: 'Corea del Norte', hint: 'País situado en una península de Asia oriental' },
+            { word: 'Arabia Saudí', decoy: 'Emiratos Árabes', hint: 'País de Oriente Medio con mucho desierto y petróleo' },
+            { word: 'Perú', decoy: 'Bolivia', hint: 'País andino con herencia inca' },
+            { word: 'Chile', decoy: 'Argentina', hint: 'País del cono sur con grandes montañas y glaciares' },
+            { word: 'Países Bajos', decoy: 'Dinamarca', hint: 'País europeo famoso por las bicicletas y canales' },
+            { word: 'Sudáfrica', decoy: 'Kenia', hint: 'País africano famoso por sus safaris y fauna' },
+            { word: 'Jamaica', decoy: 'Bahamas', hint: 'País insular paradisíaco con playas famosas' },
+            { word: 'Israel', decoy: 'Palestina', hint: 'Lugar de Oriente Próximo con gran importancia religiosa' },
+            { word: 'Polonia', decoy: 'República Checa', hint: 'País del este de Europa con mucha historia medieval' },
+            { word: 'Indonesia', decoy: 'Filipinas', hint: 'País asiático formado por miles de islas' }
+        ]
+    },
+    {
+        category: 'Verbos (Acciones)',
+        items: [
+            { word: 'Correr', decoy: 'Saltar', hint: 'Moverse rápido a pie' },
+            { word: 'Dormir', decoy: 'Soñar', hint: 'Lo haces por la noche en la cama' },
+            { word: 'Cocinar', decoy: 'Comer', hint: 'Preparar los alimentos' },
+            { word: 'Cantar', decoy: 'Gritar', hint: 'Usar la voz con ritmo' },
+            { word: 'Nadar', decoy: 'Bucear', hint: 'Moverse en el agua' },
+            { word: 'Escribir', decoy: 'Dibujar', hint: 'Usar un bolígrafo sobre papel' },
+            { word: 'Bailar', decoy: 'Girar', hint: 'Mover el cuerpo con la música' },
+            { word: 'Conducir', decoy: 'Volar', hint: 'Manejar un vehículo' },
+            { word: 'Estudiar', decoy: 'Leer', hint: 'Acción para aprender algo' },
+            { word: 'Reír', decoy: 'Llorar', hint: 'Expresar una emoción con la cara' }
+        ]
+    },
+    {
+        category: 'Animales',
+        items: [
+            { word: 'León', decoy: 'Tigre', hint: 'Un gran felino salvaje' },
+            { word: 'Elefante', decoy: 'Rinoceronte', hint: 'Animal grande, pesado y gris' },
+            { word: 'Delfín', decoy: 'Ballena', hint: 'Mamífero acuático muy inteligente' },
+            { word: 'Perro', decoy: 'Lobo', hint: 'Un animal cánido' },
+            { word: 'Gato', decoy: 'Pantera', hint: 'Un felino ágil' },
+            { word: 'Jirafa', decoy: 'Cebra', hint: 'Animal típico de la sabana con rasgos únicos' },
+            { word: 'Pingüino', decoy: 'Pato', hint: 'Ave que sabe nadar' },
+            { word: 'Serpiente', decoy: 'Lagarto', hint: 'Es un reptil' },
+            { word: 'Tiburón', decoy: 'Orca', hint: 'Gran depredador del océano' }
+        ]
+    },
+    {
+        category: 'Marcas Globales',
+        items: [
+            { word: 'Nike', decoy: 'Adidas', hint: 'Marca de ropa y calzado deportivo' },
+            { word: 'Coca-Cola', decoy: 'Pepsi', hint: 'Famoso refresco gaseoso' },
+            { word: 'Zara', decoy: 'H&M', hint: 'Tienda de moda internacional' },
+            { word: 'Mercadona', decoy: 'Lidl', hint: 'Cadena de supermercados' },
+            { word: 'Ferrari', decoy: 'Lamborghini', hint: 'Marca italiana de coches de lujo' },
+            { word: 'Apple', decoy: 'Samsung', hint: 'Gigante de la tecnología móvil' },
+            { word: 'Amazon', decoy: 'Aliexpress', hint: 'Plataforma de comercio electrónico' },
+            { word: 'Disney', decoy: 'Netflix', hint: 'Empresa de entretenimiento y contenido' }
         ]
     },
     {
         category: 'Tecnología',
         items: [
-            { word: 'Smartphone', decoy: 'Tablet', hint: 'Dispositivo portátil con pantalla' },
-            { word: 'Internet', decoy: 'Bluetooth', hint: 'Sirve para conectar cosas' },
-            { word: 'WhatsApp', decoy: 'Telegram', hint: 'App de mensajería' },
-            { word: 'Instagram', decoy: 'TikTok', hint: 'Red social visual' },
-            { word: 'Bitcoin', decoy: 'Euro', hint: 'Es un tipo de moneda' },
-            { word: 'Netflix', decoy: 'YouTube', hint: 'Plataforma para ver vídeo' },
-            { word: 'Teclado', decoy: 'Ratón', hint: 'Periférico de ordenador' },
-            { word: 'Cámara', decoy: 'Telescopio', hint: 'Sirve para ver o capturar imágenes' },
-            { word: 'Robot', decoy: 'IA', hint: 'Tecnología avanzada' }
+            { word: 'Smartphone', decoy: 'Tablet', hint: 'Dispositivo táctil portátil' },
+            { word: 'WhatsApp', decoy: 'Telegram', hint: 'App para mensajería' },
+            { word: 'Instagram', decoy: 'TikTok', hint: 'Red social de contenido visual' },
+            { word: 'Netflix', decoy: 'YouTube', hint: 'Plataforma de vídeo' },
+            { word: 'Bitcoin', decoy: 'Ethereum', hint: 'Es una criptomoneda' },
+            { word: 'Spotify', decoy: 'Apple Music', hint: 'App para escuchar música' }
         ]
     },
     {
-        category: 'Profesiones',
+        category: 'Cine y Series',
         items: [
-            { word: 'Médico', decoy: 'Enfermero', hint: 'Trabaja en un hospital' },
-            { word: 'Bombero', decoy: 'Policía', hint: 'Lleva uniforme de servicio' },
-            { word: 'Profesor', decoy: 'Alumno', hint: 'Está en un colegio' },
-            { word: 'Cocinero', decoy: 'Camarero', hint: 'Trabaja con comida' },
-            { word: 'Astronauta', decoy: 'Piloto', hint: 'Maneja naves o vehículos' },
-            { word: 'Pintor', decoy: 'Escultor', hint: 'Es un artista' },
-            { word: 'Arquitecto', decoy: 'Ingeniero', hint: 'Diseña y construye cosas' },
-            { word: 'Juez', decoy: 'Abogado', hint: 'Trabaja en un juzgado' }
+            { word: 'Batman', decoy: 'Iron Man', hint: 'Héroe millonario' },
+            { word: 'Harry Potter', decoy: 'Merlín', hint: 'Mago muy famoso' },
+            { word: 'Stranger Things', decoy: 'Dark', hint: 'Serie con niños y misterios' },
+            { word: 'Juego de Tronos', decoy: 'The Witcher', hint: 'Fantasía medieval y espadas' },
+            { word: 'Mario Bros', decoy: 'Sonic', hint: 'Personaje de videojuegos' },
+            { word: 'Pikachu', decoy: 'Agumon', hint: 'Criatura que evoluciona' }
         ]
     },
     {
-        category: 'Cosas de Casa',
+        category: 'Objetos y Casa',
         items: [
-            { word: 'Nevera', decoy: 'Congelador', hint: 'Electrodoméstico de cocina' },
-            { word: 'Cama', decoy: 'Sofá', hint: 'Sirve para descansar' },
-            { word: 'Ducha', decoy: 'Bañera', hint: 'Para el aseo personal' },
-            { word: 'Televisión', decoy: 'Monitor', hint: 'Tiene pantalla' },
-            { word: 'Microondas', decoy: 'Horno', hint: 'Sirve para calentar comida' },
-            { word: 'Espejo', decoy: 'Ventana', hint: 'Es de cristal' },
-            { word: 'Lámpara', decoy: 'Vela', hint: 'Sirve para iluminar' },
-            { word: 'Reloj', decoy: 'Calendario', hint: 'Sirve para medir el tiempo' }
-        ]
-    },
-    {
-        category: 'Mitología y Fantasía',
-        items: [
-            { word: 'Dragón', decoy: 'Dinosaurio', hint: 'Criatura gigante escamosa' },
-            { word: 'Vampiro', decoy: 'Zombie', hint: 'Ser fantástico inmortal' },
-            { word: 'Sirena', decoy: 'Hada', hint: 'Criatura con rasgos humanos' },
-            { word: 'Unicornio', decoy: 'Caballo', hint: 'Animal con cuatro patas' },
-            { word: 'Pirata', decoy: 'Vikingo', hint: 'Guerrero del mar' },
-            { word: 'Fantasma', decoy: 'Espíritu', hint: 'Aparece en casas encantadas' },
-            { word: 'Hombre Lobo', decoy: 'Yeti', hint: 'Criatura legendaria' },
-            { word: 'Genio', decoy: 'Mago', hint: 'Puede conceder deseos' }
-        ]
-    },
-    {
-        category: 'Música e Instrumentos',
-        items: [
-            { word: 'Guitarra', decoy: 'Ukelele', hint: 'Instrumento de cuerda' },
-            { word: 'Piano', decoy: 'Órgano', hint: 'Instrumento con teclas' },
-            { word: 'Batería', decoy: 'Tambor', hint: 'Instrumento de percusión' },
-            { word: 'Cantante', decoy: 'Rapero', hint: 'Persona que usa su voz' },
-            { word: 'Rock', decoy: 'Heavy Metal', hint: 'Género musical movido' },
-            { word: 'Violín', decoy: 'Violonchelo', hint: 'Se toca con arco' }
-        ]
-    },
-    {
-        category: 'Ciencia y Universo',
-        items: [
-            { word: 'Sol', decoy: 'Estrella', hint: 'Cuerpo celeste brillante' },
-            { word: 'Luna', decoy: 'Satélite', hint: 'Se ve de noche en el cielo' },
-            { word: 'Marte', decoy: 'Júpiter', hint: 'Es un planeta' },
-            { word: 'Gravedad', decoy: 'Magnetismo', hint: 'Fuerza de la naturaleza' },
-            { word: 'Átomo', decoy: 'Célula', hint: 'Algo muy pequeño' },
-            { word: 'Telescopio', decoy: 'Microscopio', hint: 'Sirve para observar' }
-        ]
-    },
-    {
-        category: 'Concellos de Galicia',
-        items: [
-            { word: 'Vilagarcía de Arousa', decoy: 'Vilanova de Arousa', hint: 'Concello na beira da ría de Arousa' },
-            { word: 'Catoira', decoy: 'Padrón', hint: 'Concello famoso polas súas torres ou relación co río Ulla' },
-            { word: 'Caldas de Reis', decoy: 'Cuntis', hint: 'Concello con moita tradición de augas termais' },
-            { word: 'Ferrol', decoy: 'Fene', hint: 'Concello con ría e moita historia naval' },
-            { word: 'Cambados', decoy: 'O Grove', hint: 'Concello das Rías Baixas con moita sona polo viño ou marisco' },
-            { word: 'Pontecesures', decoy: 'Valga', hint: 'Concello que fai fronteira entre provincias' },
-            { word: 'Sanxenxo', decoy: 'Portonovo', hint: 'Lugar de moito turismo e praia no verán' },
-            { word: 'Silleda', decoy: 'Vila de Cruces', hint: 'Concello do interior con feiras ou fervenzas' },
-            { word: 'Rianxo', decoy: 'Boiro', hint: 'Concello mariñeiro na banda norte da ría' },
-            { word: 'A Estrada', decoy: 'Santiago de Compostela', hint: 'Concello grande pola zona centro de Galicia' }
-        ]
-    },
-    {
-        category: 'Concellos e Cidades',
-        items: [
-            { word: 'Vigo', decoy: 'A Coruña', hint: 'Unha das grandes cidades de Galicia' },
-            { word: 'Santiago de Compostela', decoy: 'Lugo', hint: 'Cidade con moita historia e muralla ou catedral' },
-            { word: 'Ourense', decoy: 'Pontevedra', hint: 'Cidade galega con zona vella importante' },
-            { word: 'Sanxenxo', decoy: 'O Grove', hint: 'Concello turístico nas Rías Baixas' },
-            { word: 'Vilagarcía de Arousa', decoy: 'Cambados', hint: 'Concello na ría de Arousa' },
-            { word: 'Ferrol', decoy: 'Narón', hint: 'Concello con gran tradición naval ou industrial' },
-            { word: 'Viveiro', decoy: 'Ribadeo', hint: 'Concello da Mariña Lucense' },
-            { word: 'Cangas', decoy: 'Moaña', hint: 'Concello na península do Morrazo' },
-            { word: 'A Estrada', decoy: 'Lalín', hint: 'Concello do interior da provincia de Pontevedra' },
-            { word: 'Baiona', decoy: 'Nigrán', hint: 'Concello costeiro cerca de Vigo' },
-            { word: 'Carballo', decoy: 'Oleiros', hint: 'Concello con moita poboación na provincia da Coruña' },
-            { word: 'Monforte de Lemos', decoy: 'Sarria', hint: 'Concello importante no interior de Lugo' },
-            { word: 'O Carballiño', decoy: 'Ribadavia', hint: 'Concello famoso pola súa gastronomía ou viño' },
-            { word: 'Tui', decoy: 'A Guarda', hint: 'Concello na fronteira con Portugal ou no Baixo Miño' },
-            { word: 'Arteixo', decoy: 'Culleredo', hint: 'Concello da área metropolitana da Coruña' }
+            { word: 'Llaves', decoy: 'Cartera', hint: 'Algo que llevas encima' },
+            { word: 'Gafas', decoy: 'Lentillas', hint: 'Ayuda a la visión' },
+            { word: 'Reloj', decoy: 'Pulsera', hint: 'Se pone en la muñeca' },
+            { word: 'Nevera', decoy: 'Microondas', hint: 'Electrodoméstico común' },
+            { word: 'Cama', decoy: 'Sofá', hint: 'Mueble para descansar' },
+            { word: 'Coche', decoy: 'Moto', hint: 'Vehículo de transporte' }
         ]
     }
 ];
@@ -221,7 +217,8 @@ let gameState = {
     timerSeconds: 0,
     expressActive: false,
     expressTurnIndex: 0, // Index within alivePlayers array
-    alivePlayers: [] // Array of original player indices
+    alivePlayers: [], // Array of original player indices
+    usedItems: new Set(JSON.parse(localStorage.getItem('impostor_used_items') || '[]')) // Track used words from localStorage
 };
 
 // Elementos DOM
@@ -233,7 +230,22 @@ const dom = {
         pass: document.getElementById('pass-view'),
         reveal: document.getElementById('reveal-view'),
         game: document.getElementById('game-view'),
-        voting: document.getElementById('voting-view')
+        voting: document.getElementById('voting-view'),
+        onlineSetup: document.getElementById('online-setup-view'),
+        onlineLobby: document.getElementById('online-lobby-view')
+    },
+    online: {
+        btnBack: document.getElementById('btn-back-home-online'),
+        inpRoom: document.getElementById('inp-room-name'),
+        inpAlias: document.getElementById('inp-alias'),
+        btnJoin: document.getElementById('btn-join-room'),
+        btnLeave: document.getElementById('btn-leave-lobby'),
+        playersList: document.getElementById('online-players-list'),
+        hostControls: document.getElementById('host-controls'),
+        modeSelect: document.getElementById('online-game-mode'),
+        catSelect: document.getElementById('online-category'),
+        btnDist: document.getElementById('btn-distribute-roles'),
+        status: document.getElementById('lobby-status')
     },
     home: {
         btnLocal: document.getElementById('btn-mode-local'),
@@ -287,7 +299,7 @@ generatePlayerInputs();
 // Home Listeners
 dom.home.btnLocal.addEventListener('click', () => switchView('players'));
 dom.home.btnOnline.addEventListener('click', () => {
-    alert('Esta funcionalidad estará disponible pronto. Jueguen en modo "Un solo móvil" mientras tanto.');
+    switchView('onlineSetup');
 });
 
 // Navigation Listeners
@@ -303,13 +315,27 @@ dom.rules.modeSelect.addEventListener('change', updateModeDescription);
 dom.rules.btnStart.addEventListener('click', startGame);
 
 dom.pass.btnReveal.addEventListener('click', showRole);
-dom.reveal.btnHide.addEventListener('click', nextTurn);
+dom.reveal.btnHide.addEventListener('click', () => {
+    if (socket) {
+        switchView('onlineLobby');
+    } else {
+        nextTurn();
+    }
+});
 
 dom.game.btnExpressNext.addEventListener('click', nextExpressTurn);
 dom.game.btnExpressVote.addEventListener('click', startVotingPhase);
 dom.game.btnVote.addEventListener('click', startVotingPhase);
 dom.game.btnNew.addEventListener('click', () => switchView('players'));
 dom.game.btnHome.addEventListener('click', () => switchView('home'));
+
+// Online Listeners
+dom.online.btnBack.addEventListener('click', () => switchView('home'));
+dom.online.btnJoin.addEventListener('click', joinRoom);
+dom.online.btnLeave.addEventListener('click', leaveRoom);
+dom.online.btnDist.addEventListener('click', () => {
+    iniciarReparto(dom.online.modeSelect.value, dom.online.catSelect.value);
+});
 
 // Funciones de Configuración
 function updatePlayers(change) {
@@ -405,9 +431,30 @@ function startGame() {
         gameState.alivePlayers.push(i); // All alive at start
     }
 
-    // 1. Seleccionar Categoria y Palabra
-    const catData = DATABASE[Math.floor(Math.random() * DATABASE.length)];
-    const itemData = catData.items[Math.floor(Math.random() * catData.items.length)];
+    // 1. Seleccionar Categoria y Palabra (Evitando repeticiones)
+    let catIdx, itemIdx, key;
+    let attempts = 0;
+    const maxAttempts = 200; // Evitar bucle infinito si se acaban las palabras
+
+    do {
+        catIdx = Math.floor(Math.random() * DATABASE.length);
+        itemIdx = Math.floor(Math.random() * DATABASE[catIdx].items.length);
+        key = `${catIdx}-${itemIdx}`;
+        attempts++;
+    } while (gameState.usedItems.has(key) && attempts < maxAttempts);
+
+    // Si hemos agotado intentos (probablemente se acabaron las palabras), reiniciamos historial
+    if (attempts >= maxAttempts) {
+        gameState.usedItems.clear();
+        console.log("Todas las palabras usadas. Reiniciando historial.");
+        localStorage.removeItem('impostor_used_items');
+    }
+
+    gameState.usedItems.add(key);
+    localStorage.setItem('impostor_used_items', JSON.stringify([...gameState.usedItems]));
+
+    const catData = DATABASE[catIdx];
+    const itemData = catData.items[itemIdx];
 
     gameState.currentRoundData = {
         category: catData.category,
@@ -905,4 +952,260 @@ function switchView(viewName) {
     target.classList.remove('hidden');
     void target.offsetWidth;
     target.classList.add('active');
+}
+
+// ==========================================
+// MODO ONLINE (WEBSOCKETS)
+// ==========================================
+
+let socket = null;
+let onlinePlayers = [];
+let isHost = false;
+let myPeerId = '';
+let currentRoom = '';
+const WS_URL = 'wss://impostor-signaling.onrender.com';
+
+function joinRoom() {
+    const roomName = dom.online.inpRoom.value.trim();
+    const alias = dom.online.inpAlias.value.trim();
+
+    if (!roomName || !alias) {
+        alert("Introduce sala y nombre");
+        return;
+    }
+
+    currentRoom = roomName;
+
+    // Connect
+    socket = new WebSocket(WS_URL);
+
+    socket.onopen = () => {
+        // Send join request
+        socket.send(JSON.stringify({
+            appType: 'cudi-sync',
+            type: 'join',
+            room: roomName,
+            alias: alias
+        }));
+    };
+
+    socket.onmessage = (event) => {
+        let data;
+        try { data = JSON.parse(event.data); } catch (e) { return; }
+
+        console.log("Recibido:", data);
+
+        if (data.type === 'room_created') {
+            isHost = true;
+            myPeerId = data.peerId;
+            enterLobby();
+        }
+        else if (data.type === 'joined') {
+            isHost = false;
+            myPeerId = data.peerId;
+            enterLobby();
+        }
+        else if (data.type === 'player_joined') {
+            // New player
+            onlinePlayers.push({ id: data.peerId, alias: data.alias });
+            actualizarListaUI();
+        }
+        else if (data.type === 'player_left') {
+            onlinePlayers = onlinePlayers.filter(p => p.id !== data.peerId);
+            actualizarListaUI();
+        }
+        else if (data.type === 'room_closed') {
+            alert("La sala ha sido cerrada por el anfitrión.");
+            leaveRoom();
+        }
+        else if (data.type === 'error') {
+            alert(data.message);
+            socket.close();
+        }
+        else if (data.type === 'signal') {
+            // Game Signals
+            if (data.role) {
+                mostrarPantallaRol(data.role, data.word, data.hint);
+            }
+        }
+    };
+
+    socket.onclose = () => {
+        console.log("Desconectado");
+    };
+
+    socket.onerror = (e) => {
+        console.error("Error WS", e);
+        alert("Error de conexión");
+    };
+}
+
+function leaveRoom() {
+    if (socket) socket.close();
+    socket = null;
+    onlinePlayers = [];
+    isHost = false;
+    switchView('home');
+}
+
+function enterLobby() {
+    switchView('onlineLobby');
+    onlinePlayers = []; // Reset locally, wait for sync or assume we are alone first if host
+    // Actually, if we are host, we are alone.
+
+    if (isHost) {
+        dom.online.hostControls.classList.remove('hidden');
+        dom.online.status.textContent = "Eres el Anfitrión. Espera a los jugadores y reparte.";
+        // Populate categories
+        populateOnlineCategories();
+    } else {
+        dom.online.hostControls.classList.add('hidden');
+        dom.online.status.textContent = "Esperando al anfitrión...";
+    }
+
+    actualizarListaUI();
+}
+
+function populateOnlineCategories() {
+    const sel = dom.online.catSelect;
+    sel.innerHTML = '';
+    DATABASE.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.category;
+        opt.textContent = cat.category;
+        sel.appendChild(opt);
+    });
+}
+
+function actualizarListaUI() {
+    const list = dom.online.playersList;
+    list.innerHTML = '';
+
+    if (onlinePlayers.length === 0 && isHost) {
+        list.innerHTML = '<li>Esperando jugadores...</li>';
+        return;
+    }
+
+    onlinePlayers.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p.alias;
+        li.style.padding = '5px';
+        li.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+        list.appendChild(li);
+    });
+}
+
+function iniciarReparto(modoJuego, categoriaSeleccionada) {
+    if (!isHost) return;
+
+    // 1. Select Word
+    const categoria = DATABASE.find(c => c.category === categoriaSeleccionada);
+    const item = categoria.items[Math.floor(Math.random() * categoria.items.length)];
+
+    // 2. Pick Impostor
+    const allPlayers = [{ id: myPeerId, alias: 'Tu (Host)' }, ...onlinePlayers];
+
+    const indiceImpostor = Math.floor(Math.random() * allPlayers.length);
+
+    // 3. Send
+    allPlayers.forEach((jugador, index) => {
+        const soyElImpostor = (index === indiceImpostor);
+
+        let msg = {
+            appType: 'cudi-sync',
+            type: 'signal',
+            role: '',
+            word: '',
+            hint: '' //, targetId for remote
+        };
+
+        if (jugador.id !== myPeerId) {
+            msg.targetId = jugador.id;
+        }
+
+        switch (modoJuego) {
+            case 'Clásico':
+                msg.role = soyElImpostor ? 'IMPOSTOR' : 'ALIADO';
+                msg.word = soyElImpostor ? '???' : item.word;
+                msg.hint = soyElImpostor ? item.hint : '';
+                break;
+
+            case 'Confusión':
+                msg.role = soyElImpostor ? 'IMPOSTOR' : 'ALIADO';
+                msg.word = soyElImpostor ? item.decoy : item.word;
+                break;
+
+            case 'Inconsciente':
+                msg.role = 'ALIADO';
+                msg.word = soyElImpostor ? item.decoy : item.word;
+                break;
+
+            case 'Espía':
+                msg.role = soyElImpostor ? 'IMPOSTOR' : 'ALIADO';
+                msg.word = soyElImpostor ? '???' : item.word;
+                break;
+        }
+
+        if (jugador.id === myPeerId) {
+            mostrarPantallaRol(msg.role, msg.word, msg.hint);
+        } else {
+            socket.send(JSON.stringify(msg));
+        }
+    });
+}
+
+function mostrarPantallaRol(role, word, hint) {
+    let roleTitle = role === 'IMPOSTOR' ? 'ERES EL IMPOSTOR' : 'ALIADO';
+    let roleIcon = role === 'IMPOSTOR' ? 'fa-user-secret' : 'fa-mask';
+    let content = '';
+    let themeClass = role === 'IMPOSTOR' ? 'impostor-theme' : '';
+
+    dom.reveal.card.className = 'role-card ' + themeClass;
+
+    if (role === 'IMPOSTOR') {
+        if (word === '???') {
+            if (hint) {
+                content = `
+                    <p class="role-subtitle">Pista:</p>
+                    <div class="secret-word-box" style="font-size: 1.5rem">${hint}</div>
+                    <p class="instruction">Úsala para guiarte.</p>
+                  `;
+            } else {
+                content = `
+                    <div class="secret-word-box">???</div>
+                    <p class="instruction">No sabes la palabra. ¡Miente!</p>
+                  `;
+            }
+        } else {
+            content = `
+                <p class="role-subtitle">Palabra Señuelo:</p>
+                <div class="secret-word-box">${word}</div>
+                <p class="instruction">¡Es falsa! Úsala para confundir.</p>
+            `;
+        }
+
+        if (navigator.vibrate) navigator.vibrate(200);
+
+    } else {
+        content = `
+             <p class="role-subtitle">Tu Palabra:</p>
+             <div class="secret-word-box">${word}</div>
+             <p class="instruction">Di una palabra relacionada.</p>
+         `;
+    }
+
+    dom.reveal.card.innerHTML = `
+        <h2 class="pulse">Recibiendo Rol...</h2>
+    `;
+
+    switchView('reveal');
+
+    setTimeout(() => {
+        dom.reveal.card.innerHTML = `
+            <i class="fa-solid ${roleIcon} role-icon"></i>
+            <h2>${roleTitle}</h2>
+            ${content}
+            <div style="margin-top:20px; font-size:0.8rem; opacity:0.7;">Modo Online</div>
+        `;
+    }, 2000);
 }

@@ -42,186 +42,254 @@
             </div>
         </section>
 
-        <!-- VISTA 1.1: JUGADORES -->
-        <section id="players-view" class="view hidden">
-            <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 5px;">
-                <button id="btn-back-home" style="background:none; border:none; color:white; font-size:1.5rem;"><i
+        <!-- VISTA ONLINE 1: SETUP -->
+        <section id="online-setup-view" class="view hidden">
+            <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 20px;">
+                <button id="btn-back-home-online"
+                    style="background:none; border:none; color:white; font-size:1.5rem;"><i
                         class="fa-solid fa-arrow-left"></i></button>
-                <h2 style="margin-left: 15px; font-size: 1.5rem;">Jugadores</h2>
+                <h2 style="margin-left: 15px; font-size: 1.5rem;">Unirse / Crear</h2>
             </div>
+            <div class="config-card">
+                <p style="color:var(--text-muted); margin-bottom:10px;">Nombre de la Sala</p>
+                <input type="text" id="inp-room-name" placeholder="Ej: Sala123"
+                    style="width:100%; margin-bottom:20px; padding:15px; border-radius:12px; border:none; background:rgba(255,255,255,0.1); color:white;">
 
-            <p style="text-align:center; color:var(--text-muted); margin-bottom:15px; font-size:0.9rem;">
-                ¿Quiénes van a jugar?
-            </p>
-
-            <div class="config-card"
-                style="display: flex; flex-direction: column; max-height: 65vh; transition: height 0.3s;">
-                <div class="control-group">
-                    <div class="counter-control">
-                        <button id="btn-dec-players"><i class="fa-solid fa-minus"></i></button>
-                        <span id="player-count">4</span>
-                        <button id="btn-inc-players"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-                </div>
-
-                <div class="control-group"
-                    style="flex:1; overflow:hidden; display:flex; flex-direction:column; min-height: 0;">
-                    <div id="players-list" class="players-grid" style="flex:1; overflow-y:auto;">
-                        <!-- Inputs generados por JS -->
-                    </div>
-                </div>
+                <p style="color:var(--text-muted); margin-bottom:10px;">Tu Nombre (Alias)</p>
+                <input type="text" id="inp-alias" placeholder="Tu Nombre"
+                    style="width:100%; margin-bottom:20px; padding:15px; border-radius:12px; border:none; background:rgba(255,255,255,0.1); color:white;">
             </div>
-
-            <button id="btn-next-rules" class="btn-primary">
-                SIGUIENTE
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
+            <button id="btn-join-room" class="btn-primary">ENTRAR</button>
         </section>
 
-        <!-- VISTA 1.2: REGLAS -->
-        <section id="rules-view" class="view hidden">
+        <!-- VISTA ONLINE 2: LOBBY -->
+        <section id="online-lobby-view" class="view hidden">
             <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 20px;">
-                <button id="btn-back-players" style="background:none; border:none; color:white; font-size:1.5rem;"><i
+                <button id="btn-leave-lobby" style="background:none; border:none; color:white; font-size:1.5rem;"><i
                         class="fa-solid fa-arrow-left"></i></button>
-                <h2 style="margin-left: 15px; font-size: 1.5rem;">Reglas</h2>
+                <h2 style="margin-left: 15px; font-size: 1.5rem;">Sala de Espera</h2>
             </div>
 
             <div class="config-card">
-                <div class="control-group">
-                    <label>Impostores</label>
-                    <div class="segmented-control">
-                        <button class="segment active" data-impostors="1">1</button>
-                        <button class="segment" data-impostors="2">2</button>
-                        <button class="segment" data-impostors="random"><i class="fa-solid fa-shuffle"></i></button>
-                    </div>
-                </div>
+                <p style="text-align:center; color:var(--accent-green); margin-bottom:15px;">
+                    <i class="fa-solid fa-users"></i> Jugadores Conectados
+                </p>
+                <ul id="online-players-list" style="list-style:none; padding:0; text-align:center;">
+                    <!-- Lista dinámica -->
+                </ul>
+            </div>
 
+            <!-- Botón SOLO para el HOST -->
+            <div id="host-controls" class="hidden">
                 <div class="control-group">
                     <label>Modo de Juego</label>
-                    <select id="game-mode">
-                        <option value="classic">Clásico</option>
-                        <option value="confusion">Confusión</option>
-                        <option value="spy">Espía</option>
-                        <option value="unconscious">Inconsciente</option>
+                    <select id="online-game-mode"
+                        style="width:100%; padding:10px; border-radius:8px; margin-top:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.2);">
+                        <option value="Clásico">Clásico</option>
+                        <option value="Confusión">Confusión</option>
+                        <option value="Espía">Espía</option>
+                        <option value="Inconsciente">Inconsciente</option>
                     </select>
-                </div>
-
-                <div id="mode-description" class="mode-info">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <span>Típico: Todos saben la palabra menos el impostor.</span>
                 </div>
                 <div class="control-group">
-                    <label>Tiempo de Debate</label>
-                    <select id="timer-setting">
-                        <option value="180">3 Minutos</option>
-                        <option value="300">5 Minutos</option>
-                        <option value="600">10 Minutos</option>
-                        <option value="infinite">Sin Límite</option>
+                    <label>Categoría</label>
+                    <select id="online-category"
+                        style="width:100%; padding:10px; border-radius:8px; margin-top:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.2);">
+                        <!-- Fill dynamically -->
                     </select>
                 </div>
-
-                <div class="control-group checkbox-group"
-                    style="display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.2); padding:10px; border-radius:12px;">
-                    <input type="checkbox" id="express-mode"
-                        style="width:20px; height:20px; accent-color:var(--primary);">
-                    <label for="express-mode" style="margin:0; cursor:pointer;">Ronda Express (10s/turno)</label>
-                </div>
+                <button id="btn-distribute-roles" class="btn-primary pulse" style="margin-top:20px;">
+                    ¡REPARTIR ROLES!
+                </button>
             </div>
 
-            <button id="btn-start" class="btn-primary pulse">
-                JUGAR
-                <i class="fa-solid fa-play"></i>
-            </button>
-        </section>
+            <p id="lobby-status" style="text-align:center; margin-top:20px; color:var(--text-muted);">Esperando al
+                anfitrión...</p>
 
-        <!-- VISTA 2: PASE DE TURNO -->
-        <section id="pass-view" class="view hidden">
-            <div class="card-container">
-                <div class="turn-info">
-                    <p class="sub-label">TURNO DE</p>
-                    <h2 id="current-player-num" class="player-name-display">Alex</h2>
+            <!-- VISTA 1.1: JUGADORES -->
+            <section id="players-view" class="view hidden">
+                <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 5px;">
+                    <button id="btn-back-home" style="background:none; border:none; color:white; font-size:1.5rem;"><i
+                            class="fa-solid fa-arrow-left"></i></button>
+                    <h2 style="margin-left: 15px; font-size: 1.5rem;">Jugadores</h2>
                 </div>
-                <div class="instruction-icon">
-                    <i class="fa-solid fa-mobile-screen-button"></i>
-                </div>
-                <p style="text-align:center; margin-bottom:20px; color:var(--text-muted)">Pásale el móvil a este jugador
+
+                <p style="text-align:center; color:var(--text-muted); margin-bottom:15px; font-size:0.9rem;">
+                    ¿Quiénes van a jugar?
                 </p>
-                <button id="btn-reveal" class="btn-primary">VER MI ROL</button>
-            </div>
-        </section>
 
-        <!-- VISTA 3: REVELACIÓN -->
-        <section id="reveal-view" class="view hidden">
-            <div class="role-card" id="role-card-content">
-                <!-- Contenido dinámico -->
-            </div>
-            <button id="btn-hide" class="btn-secondary">OCULTAR</button>
-        </section>
-
-        <!-- VISTA 4: JUEGO EN CURSO -->
-        <section id="game-view" class="view hidden">
-            <header>
-                <h2>¡A JUGAR!</h2>
-            </header>
-
-            <div class="game-status">
-                <div class="timer">
-                    <span id="timer-display">00:00</span>
-                </div>
-
-                <!-- Normal Status -->
-                <p id="game-status-text">Turno de debate</p>
-
-                <!-- Express UI -->
-                <div id="express-ui" class="hidden" style="margin-top:20px;">
-                    <!-- Step 1: Select Who Starts -->
-                    <div id="express-start-selection">
-                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">¿QUIÉN EMPIEZA?</p>
-                        <div id="express-start-list"
-                            style="display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:300px; overflow-y:auto;">
-                            <!-- Buttons generated by JS -->
+                <div class="config-card"
+                    style="display: flex; flex-direction: column; max-height: 65vh; transition: height 0.3s;">
+                    <div class="control-group">
+                        <div class="counter-control">
+                            <button id="btn-dec-players"><i class="fa-solid fa-minus"></i></button>
+                            <span id="player-count">4</span>
+                            <button id="btn-inc-players"><i class="fa-solid fa-plus"></i></button>
                         </div>
                     </div>
 
-                    <!-- Step 2: The Game Loop (Hidden initially) -->
-                    <div id="express-active-game" class="hidden">
-                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:5px;">TURNO DE PALABRA</p>
-                        <h2 id="express-player-name"
-                            style="color:var(--accent-blue); font-size:2rem; margin-bottom:20px;">
-                            Alex</h2>
-                        <button id="btn-express-next" class="btn-secondary"
-                            style="border-color:var(--accent-green); color:var(--accent-green); height:80px; font-size:1.5rem; margin-bottom:10px;">
-                            <i class="fa-solid fa-check"></i> PASAR
-                        </button>
-                        <button id="btn-express-vote" class="btn-text"
-                            style="color:var(--text-muted); font-size:0.9rem;">
-                            <i class="fa-solid fa-gavel"></i> Ir a Votación
-                        </button>
+                    <div class="control-group"
+                        style="flex:1; overflow:hidden; display:flex; flex-direction:column; min-height: 0;">
+                        <div id="players-list" class="players-grid" style="flex:1; overflow-y:auto;">
+                            <!-- Inputs generados por JS -->
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="actions">
-                <button id="btn-start-vote" class="btn-primary" style="background:var(--accent-blue);">
-                    <i class="fa-solid fa-gavel"></i> VOTAR
+                <button id="btn-next-rules" class="btn-primary">
+                    SIGUIENTE
+                    <i class="fa-solid fa-arrow-right"></i>
                 </button>
-                <button id="btn-new-game" class="btn-secondary">NUEVA PARTIDA</button>
-                <button id="btn-home" class="btn-text">Volver al Inicio</button>
-            </div>
-        </section>
+            </section>
 
-        <!-- VISTA 5: VOTACIÓN -->
-        <section id="voting-view" class="view hidden">
-            <header>
-                <h2>VOTACIÓN</h2>
-                <p>Toca al jugador para eliminarlo</p>
-            </header>
+            <!-- VISTA 1.2: REGLAS -->
+            <section id="rules-view" class="view hidden">
+                <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 20px;">
+                    <button id="btn-back-players"
+                        style="background:none; border:none; color:white; font-size:1.5rem;"><i
+                            class="fa-solid fa-arrow-left"></i></button>
+                    <h2 style="margin-left: 15px; font-size: 1.5rem;">Reglas</h2>
+                </div>
 
-            <div id="voting-grid"
-                style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px; width:100%;">
-                <!-- Cards generated dynamically -->
-            </div>
-        </section>
+                <div class="config-card">
+                    <div class="control-group">
+                        <label>Impostores</label>
+                        <div class="segmented-control">
+                            <button class="segment active" data-impostors="1">1</button>
+                            <button class="segment" data-impostors="2">2</button>
+                            <button class="segment" data-impostors="random"><i class="fa-solid fa-shuffle"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Modo de Juego</label>
+                        <select id="game-mode">
+                            <option value="classic">Clásico</option>
+                            <option value="confusion">Confusión</option>
+                            <option value="spy">Espía</option>
+                            <option value="unconscious">Inconsciente</option>
+                        </select>
+                    </div>
+
+                    <div id="mode-description" class="mode-info">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>Típico: Todos saben la palabra menos el impostor.</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Tiempo de Debate</label>
+                        <select id="timer-setting">
+                            <option value="180">3 Minutos</option>
+                            <option value="300">5 Minutos</option>
+                            <option value="600">10 Minutos</option>
+                            <option value="infinite">Sin Límite</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group checkbox-group"
+                        style="display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.2); padding:10px; border-radius:12px;">
+                        <input type="checkbox" id="express-mode"
+                            style="width:20px; height:20px; accent-color:var(--primary);">
+                        <label for="express-mode" style="margin:0; cursor:pointer;">Ronda Express (10s/turno)</label>
+                    </div>
+                </div>
+
+                <button id="btn-start" class="btn-primary pulse">
+                    JUGAR
+                    <i class="fa-solid fa-play"></i>
+                </button>
+            </section>
+
+            <!-- VISTA 2: PASE DE TURNO -->
+            <section id="pass-view" class="view hidden">
+                <div class="card-container">
+                    <div class="turn-info">
+                        <p class="sub-label">TURNO DE</p>
+                        <h2 id="current-player-num" class="player-name-display">Alex</h2>
+                    </div>
+                    <div class="instruction-icon">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </div>
+                    <p style="text-align:center; margin-bottom:20px; color:var(--text-muted)">Pásale el móvil a este
+                        jugador
+                    </p>
+                    <button id="btn-reveal" class="btn-primary">VER MI ROL</button>
+                </div>
+            </section>
+
+            <!-- VISTA 3: REVELACIÓN -->
+            <section id="reveal-view" class="view hidden">
+                <div class="role-card" id="role-card-content">
+                    <!-- Contenido dinámico -->
+                </div>
+                <button id="btn-hide" class="btn-secondary">OCULTAR</button>
+            </section>
+
+            <!-- VISTA 4: JUEGO EN CURSO -->
+            <section id="game-view" class="view hidden">
+                <header>
+                    <h2>¡A JUGAR!</h2>
+                </header>
+
+                <div class="game-status">
+                    <div class="timer">
+                        <span id="timer-display">00:00</span>
+                    </div>
+
+                    <!-- Normal Status -->
+                    <p id="game-status-text">Turno de debate</p>
+
+                    <!-- Express UI -->
+                    <div id="express-ui" class="hidden" style="margin-top:20px;">
+                        <!-- Step 1: Select Who Starts -->
+                        <div id="express-start-selection">
+                            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">¿QUIÉN EMPIEZA?
+                            </p>
+                            <div id="express-start-list"
+                                style="display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:300px; overflow-y:auto;">
+                                <!-- Buttons generated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Step 2: The Game Loop (Hidden initially) -->
+                        <div id="express-active-game" class="hidden">
+                            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:5px;">TURNO DE PALABRA
+                            </p>
+                            <h2 id="express-player-name"
+                                style="color:var(--accent-blue); font-size:2rem; margin-bottom:20px;">
+                                Alex</h2>
+                            <button id="btn-express-next" class="btn-secondary"
+                                style="border-color:var(--accent-green); color:var(--accent-green); height:80px; font-size:1.5rem; margin-bottom:10px;">
+                                <i class="fa-solid fa-check"></i> PASAR
+                            </button>
+                            <button id="btn-express-vote" class="btn-text"
+                                style="color:var(--text-muted); font-size:0.9rem;">
+                                <i class="fa-solid fa-gavel"></i> Ir a Votación
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button id="btn-start-vote" class="btn-primary" style="background:var(--accent-blue);">
+                        <i class="fa-solid fa-gavel"></i> VOTAR
+                    </button>
+                    <button id="btn-new-game" class="btn-secondary">NUEVA PARTIDA</button>
+                    <button id="btn-home" class="btn-text">Volver al Inicio</button>
+                </div>
+            </section>
+
+            <!-- VISTA 5: VOTACIÓN -->
+            <section id="voting-view" class="view hidden">
+                <header>
+                    <h2>VOTACIÓN</h2>
+                    <p>Toca al jugador para eliminarlo</p>
+                </header>
+
+                <div id="voting-grid"
+                    style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px; width:100%;">
+                    <!-- Cards generated dynamically -->
+                </div>
+            </section>
     </main>
 
     <script src="app.js"></script>
