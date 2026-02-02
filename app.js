@@ -329,8 +329,37 @@ const dom = {
 generatePlayerInputs();
 checkUrlParams(); // Check for room in URL
 
+// Debug Helper (Callable from Console)
+window.forceResetView = function () {
+    document.querySelectorAll('.view').forEach(v => {
+        v.style.setProperty('display', 'none', 'important');
+        v.classList.remove('active');
+        v.classList.add('hidden');
+    });
+    const v = document.getElementById('online-role-view');
+    if (v) {
+        v.style.setProperty('display', 'flex', 'important');
+        v.style.setProperty('opacity', '1', 'important');
+        v.style.setProperty('z-index', '9999', 'important');
+        v.classList.add('active');
+        console.log("Forced Online Role View");
+    }
+};
+
 // Home Listeners
-if (dom.home.btnLocal) dom.home.btnLocal.addEventListener('click', () => switchView('players'));
+if (dom.home.btnLocal) {
+    dom.home.btnLocal.addEventListener('click', () => {
+        if (typeof switchView === 'function') {
+            switchView('players');
+            // setTimeout to ensure DOM render cycle
+            if (typeof generatePlayerInputs === 'function') {
+                setTimeout(generatePlayerInputs, 50);
+            }
+        }
+    });
+} else {
+    console.error("BTN LOCAL NOT FOUND");
+}
 if (dom.home.btnOnline) dom.home.btnOnline.addEventListener('click', () => {
     switchView('onlineSetup');
 });
@@ -338,7 +367,16 @@ if (dom.home.btnOnline) dom.home.btnOnline.addEventListener('click', () => {
 // Navigation Listeners
 const btnBackHome = document.getElementById('btn-back-home');
 if (btnBackHome) btnBackHome.addEventListener('click', () => switchView('home'));
-if (dom.players.btnNext) dom.players.btnNext.addEventListener('click', () => switchView('rules'));
+
+if (dom.players.btnNext) dom.players.btnNext.addEventListener('click', () => {
+    // Save names to LocalStorage before moving on
+    for (let i = 0; i < gameState.players; i++) {
+        const val = document.getElementById(`player-input-${i}`).value;
+        if (val) safeStorage.set(`local_p_${i}`, val);
+    }
+    switchView('rules');
+});
+
 const btnBackPlayers = document.getElementById('btn-back-players');
 if (btnBackPlayers) btnBackPlayers.addEventListener('click', () => switchView('players'));
 
@@ -369,8 +407,7 @@ if (dom.online.btnBack) dom.online.btnBack.addEventListener('click', () => switc
 if (dom.online.btnJoin) dom.online.btnJoin.addEventListener('click', joinRoom);
 if (dom.online.btnLeave) dom.online.btnLeave.addEventListener('click', leaveRoom);
 if (dom.online.btnDist) dom.online.btnDist.addEventListener('click', () => {
-    console.log("Btn Dist click");
-    // alert("Boton pulsado");
+    // console.log("Btn Dist click");
     iniciarReparto(dom.online.modeSelect.value, dom.online.catSelect.value);
 });
 
@@ -397,7 +434,11 @@ function generatePlayerInputs() {
         input.type = 'text';
         input.placeholder = `Jugador ${i + 1}`;
         input.id = `player-input-${i}`;
-        // Pre-fill solo para demo si se desea, aquí lo dejamos vacío o con placeholder
+
+        // Restore from LocalStorage
+        const savedName = safeStorage.get(`local_p_${i}`, '');
+        if (savedName) input.value = savedName;
+
         list.appendChild(input);
     }
 }
@@ -457,110 +498,117 @@ function updateModeDescription() {
 
 // Lógica del Juego
 function startGame() {
-    // gameState.hintType removed, driven by mode now
-    // Store Timer & Express Setting
-    gameState.timerSetting = dom.rules.timerSelect.value;
-    gameState.expressActive = dom.rules.expressCheck.checked;
+    // console.log("startGame called");
+    // alert("startGame called");
+    try {
+        // gameState.hintType removed, driven by mode now
+        // Store Timer & Express Setting
+        gameState.timerSetting = dom.rules.timerSelect.value;
+        gameState.expressActive = dom.rules.expressCheck.checked;
 
-    // 0. Recoger nombres
-    gameState.playerNames = [];
-    gameState.alivePlayers = []; // Reset alive players
-    for (let i = 0; i < gameState.players; i++) {
-        const val = document.getElementById(`player-input-${i}`).value.trim();
-        gameState.playerNames.push(val || `Jugador ${i + 1}`);
-        gameState.alivePlayers.push(i); // All alive at start
-    }
+        // 0. Recoger nombres
+        gameState.playerNames = [];
+        gameState.alivePlayers = []; // Reset alive players
+        for (let i = 0; i < gameState.players; i++) {
+            const val = document.getElementById(`player-input-${i}`).value.trim();
+            gameState.playerNames.push(val || `Jugador ${i + 1}`);
+            gameState.alivePlayers.push(i); // All alive at start
+        }
 
-    // 1. Seleccionar Categoria y Palabra (Evitando repeticiones)
-    let catIdx, itemIdx, key;
-    let attempts = 0;
-    const maxAttempts = 200; // Evitar bucle infinito si se acaban las palabras
+        // 1. Seleccionar Categoria y Palabra (Evitando repeticiones)
+        let catIdx, itemIdx, key;
+        let attempts = 0;
+        const maxAttempts = 200; // Evitar bucle infinito si se acaban las palabras
 
-    // Ensure set exists (fix for potential local storage clutter or init issues)
-    if (!gameState.usedItems) gameState.usedItems = new Set();
+        // Ensure set exists (fix for potential local storage clutter or init issues)
+        if (!gameState.usedItems) gameState.usedItems = new Set();
 
-    do {
-        catIdx = Math.floor(Math.random() * DATABASE.length);
-        itemIdx = Math.floor(Math.random() * DATABASE[catIdx].items.length);
-        key = `${catIdx}-${itemIdx}`;
-        attempts++;
-    } while (gameState.usedItems.has(key) && attempts < maxAttempts);
+        do {
+            catIdx = Math.floor(Math.random() * DATABASE.length);
+            itemIdx = Math.floor(Math.random() * DATABASE[catIdx].items.length);
+            key = `${catIdx}-${itemIdx}`;
+            attempts++;
+        } while (gameState.usedItems.has(key) && attempts < maxAttempts);
 
-    // Si hemos agotados intentos (probablemente se acabaron las palabras), reiniciamos historial
-    if (attempts >= maxAttempts) {
-        gameState.usedItems.clear();
-        console.log("Todas las palabras usadas. Reiniciando historial.");
-        safeStorage.remove('impostor_used_items');
-    }
+        // Si hemos agotados intentos (probablemente se acabaron las palabras), reiniciamos historial
+        if (attempts >= maxAttempts) {
+            gameState.usedItems.clear();
+            console.log("Todas las palabras usadas. Reiniciando historial.");
+            safeStorage.remove('impostor_used_items');
+        }
 
-    gameState.usedItems.add(key);
-    safeStorage.set('impostor_used_items', JSON.stringify([...gameState.usedItems]));
+        gameState.usedItems.add(key);
+        safeStorage.set('impostor_used_items', JSON.stringify([...gameState.usedItems]));
 
-    const catData = DATABASE[catIdx];
-    const itemData = catData.items[itemIdx];
+        const catData = DATABASE[catIdx];
+        const itemData = catData.items[itemIdx];
 
-    gameState.currentRoundData = {
-        category: catData.category,
-        word: itemData.word,
-        decoy: itemData.decoy,
-        hint: itemData.hint
-    };
+        gameState.currentRoundData = {
+            category: catData.category,
+            word: itemData.word,
+            decoy: itemData.decoy,
+            hint: itemData.hint
+        };
 
-    // 2. Definir Roles
-    // 2. Definir Roles
-    let numImpostors;
-    if (gameState.impostors === 'random') {
-        // Random Logic Updated
-        // If players >= 6, Random can be 1 to 5 (or max safe limit)
-        // Safe limit is usually players - 1, but for game balance let's stick to user request:
-        // "que pueda ser de 1 a 5 en caso de 6" -> Wait, 5 impostors in 6 players means only 1 ally? That's chaotic!
-        // Assuming user means standard game logic but with higher cap.
+        // 2. Definir Roles
+        // 2. Definir Roles
+        let numImpostors;
+        if (gameState.impostors === 'random') {
+            // Random Logic Updated
+            // If players >= 6, Random can be 1 to 5 (or max safe limit)
+            // Safe limit is usually players - 1, but for game balance let's stick to user request:
+            // "que pueda ser de 1 a 5 en caso de 6" -> Wait, 5 impostors in 6 players means only 1 ally? That's chaotic!
+            // Assuming user means standard game logic but with higher cap.
 
-        // Let's cap max to (Players - 1) to ensure at least 1 ally.
-        let maxPossible = gameState.players - 1;
-        let maxLimit = gameState.players >= 6 ? 5 : Math.floor((gameState.players - 1) / 2); // Classic rule for small groups
+            // Let's cap max to (Players - 1) to ensure at least 1 ally.
+            let maxPossible = gameState.players - 1;
+            let maxLimit = gameState.players >= 6 ? 5 : Math.floor((gameState.players - 1) / 2); // Classic rule for small groups
 
-        // Actually user requested: "random que podrá ser de 1 a 5 en caso de 6"
-        // Let's respect the upper bound request but keep it physically possible.
-        let effectiveMax = Math.min(maxPossible, (gameState.players >= 6 ? 5 : Math.max(1, Math.floor((gameState.players - 1) / 2))));
+            // Actually user requested: "random que podrá ser de 1 a 5 en caso de 6"
+            // Let's respect the upper bound request but keep it physically possible.
+            let effectiveMax = Math.min(maxPossible, (gameState.players >= 6 ? 5 : Math.max(1, Math.floor((gameState.players - 1) / 2))));
 
-        numImpostors = Math.floor(Math.random() * effectiveMax) + 1;
-    } else {
-        numImpostors = gameState.impostors;
-    }
+            numImpostors = Math.floor(Math.random() * effectiveMax) + 1;
+        } else {
+            numImpostors = gameState.impostors;
+        }
 
-    // Safety check
-    if (numImpostors >= gameState.players) numImpostors = gameState.players - 1;
+        // Safety check
+        if (numImpostors >= gameState.players) numImpostors = gameState.players - 1;
 
-    let roles = Array(gameState.players).fill('ally');
-    let assigned = 0;
+        let roles = Array(gameState.players).fill('ally');
+        let assigned = 0;
 
-    // EASTER EGG: Martin/Martín is always Impostor
-    gameState.playerNames.forEach((name, index) => {
-        if (assigned < numImpostors) {
-            const lowerName = name.toLowerCase().trim();
-            if (lowerName === 'martin' || lowerName === 'martín') {
-                roles[index] = 'impostor';
+        // EASTER EGG: Martin/Martín is always Impostor
+        gameState.playerNames.forEach((name, index) => {
+            if (assigned < numImpostors) {
+                const lowerName = name.toLowerCase().trim();
+                if (lowerName === 'martin' || lowerName === 'martín') {
+                    roles[index] = 'impostor';
+                    assigned++;
+                }
+            }
+        });
+
+        while (assigned < numImpostors) {
+            let idx = Math.floor(Math.random() * gameState.players);
+            if (roles[idx] === 'ally') {
+                roles[idx] = 'impostor';
                 assigned++;
             }
         }
-    });
 
-    while (assigned < numImpostors) {
-        let idx = Math.floor(Math.random() * gameState.players);
-        if (roles[idx] === 'ally') {
-            roles[idx] = 'impostor';
-            assigned++;
-        }
+        gameState.roles = roles;
+        gameState.currentTurn = 0;
+
+        gameState.currentTurn = 0;
+
+        switchView('pass');
+        updatePassView();
+    } catch (e) {
+        console.error("Error in startGame:", e);
+        alert("Error al iniciar juego: " + e.message);
     }
-
-    gameState.roles = roles;
-    gameState.currentTurn = 0;
-
-    gameState.currentTurn = 0;
-
-    switchView('pass');
-    updatePassView();
 }
 
 // Swipe logic removed
@@ -571,98 +619,113 @@ function updatePassView() {
 }
 
 function showRole() {
-    const role = gameState.roles[gameState.currentTurn];
-    let isImpostor = role === 'impostor'; // Mutable for unconscious mode logic
-    const data = gameState.currentRoundData;
+    try {
+        const role = gameState.roles[gameState.currentTurn];
+        let isImpostor = role === 'impostor'; // Mutable for unconscious mode logic
+        const data = gameState.currentRoundData;
 
-    // Determine content variables
-    let impostorContent = '';
-    let roleTitle = 'ALIADO';
-    let roleIcon = 'fa-mask';
-    let themeClass = '';
+        // Determine content variables
+        let impostorContent = '';
+        let roleTitle = 'ALIADO';
+        let roleIcon = 'fa-mask';
+        let themeClass = '';
 
-    // Reset classes
-    dom.reveal.card.className = 'role-card';
+        // Reset classes
+        dom.reveal.card.className = 'role-card';
+        // alert("DEBUG LOCAL: Role=" + role + " Word=" + data.word);
 
-    // SPECIAL MODE: UNCONSCIOUS
-    // If Unconscious mode, the impostor MUST see the Ally screen with the Decoy word.
-    if (gameState.mode === 'unconscious' && isImpostor) {
-        // We pretend they are NOT an impostor for the UI
-        // They get the Decoy word as if it were the real 'word'
-        // Theme stays default
-        roleTitle = 'ALIADO';
-        roleIcon = 'fa-mask';
+        // SPECIAL MODE: UNCONSCIOUS
+        // If Unconscious mode, the impostor MUST see the Ally screen with the Decoy word.
+        if (gameState.mode === 'unconscious' && isImpostor) {
+            // We pretend they are NOT an impostor for the UI
+            // They get the Decoy word as if it were the real 'word'
+            // Theme stays default
+            roleTitle = 'ALIADO';
+            roleIcon = 'fa-mask';
 
-        // Show Decoy as their word
-        const allyInstruction = 'Di una palabra relacionada.';
-        const allyContent = `
+            // Show Decoy as their word
+            const allyInstruction = 'Di una palabra relacionada.';
+            const allyContent = `
              <p class="role-subtitle">Tema: ${data.category}</p>
              <div class="secret-word-box">${data.decoy}</div>
              <p class="instruction">${allyInstruction}</p>
         `;
 
-        dom.reveal.card.innerHTML = `
+            dom.reveal.card.innerHTML = `
             <div class="${themeClass}">
                 <i class="fa-solid ${roleIcon} role-icon"></i>
                 <h2>${roleTitle}</h2>
                 ${allyContent}
             </div>
         `;
-        switchView('reveal');
-        return; // Exit early
-    }
+            switchView('reveal');
+            return; // Exit early
+        }
 
-    if (isImpostor) {
-        dom.reveal.card.classList.add('impostor-theme');
-        themeClass = 'impostor-theme';
-        roleIcon = 'fa-user-secret';
-        roleTitle = 'ERES EL IMPOSTOR';
+        if (isImpostor) {
+            dom.reveal.card.classList.add('impostor-theme');
+            themeClass = 'impostor-theme';
+            roleIcon = 'fa-user-secret';
+            roleTitle = 'ERES EL IMPOSTOR';
 
-        // Haptic Feedback only if they KNOW they are impostor
-        if (navigator.vibrate) navigator.vibrate(200);
+            // Haptic Feedback only if they KNOW they are impostor
+            if (navigator.vibrate) navigator.vibrate(200);
 
-        if (gameState.mode === 'spy') {
-            // SPY MODE: No hints
-            impostorContent = `
+            if (gameState.mode === 'spy') {
+                // SPY MODE: No hints
+                impostorContent = `
                 <div class="secret-word-box">???</div>
                 <p class="instruction">No sabes la palabra. ¡Miente!</p>
             `;
-        }
-        else if (gameState.mode === 'classic') {
-            // CLASSIC: Generic Hint
-            impostorContent = `
+            }
+            else if (gameState.mode === 'classic') {
+                // CLASSIC: Generic Hint
+                impostorContent = `
                 <p class="role-subtitle">Pista:</p>
                 <div class="secret-word-box" style="font-size: 1.5rem">${data.hint}</div>
                 <p class="instruction">Úsala para guiarte.</p>
             `;
-        }
-        else if (gameState.mode === 'confusion') {
-            // CONFUSION: Decoy Word but knows it's fake
-            impostorContent = `
+            }
+            else if (gameState.mode === 'confusion') {
+                // CONFUSION: Decoy Word but knows it's fake
+                impostorContent = `
                 <p class="role-subtitle">Palabra Señuelo:</p>
                 <div class="secret-word-box">${data.decoy}</div>
                 <p class="instruction">¡Es falsa! Úsala para confundir.</p>
             `;
+            }
         }
-    }
 
-    // Prepare Ally Content (fallback if not impostor)
-    const allyInstruction = 'Di una palabra relacionada.';
-    const allyContent = `
+        // Prepare Ally Content (fallback if not impostor)
+        const allyInstruction = 'Di una palabra relacionada.';
+        const allyContent = `
          <p class="role-subtitle">Tema: ${data.category}</p>
          <div class="secret-word-box">${data.word}</div>
          <p class="instruction">${allyInstruction}</p>
     `;
 
-    // Render to Card
-    // Using dom.reveal.card
-    dom.reveal.card.innerHTML = `
-        <i class="fa-solid ${roleIcon} role-icon"></i>
-        <h2>${roleTitle}</h2>
-        ${isImpostor ? impostorContent : allyContent}
+        // Render to Card
+        // Animation Start
+        dom.reveal.card.innerHTML = `
+        <h2 class="pulse">Recibiendo Rol...</h2>
     `;
 
-    switchView('reveal');
+        switchView('reveal');
+
+        // Display actual content after delay
+        setTimeout(() => {
+            dom.reveal.card.innerHTML = `
+            <div class="${themeClass}">
+                <i class="fa-solid ${roleIcon} role-icon"></i>
+                <h2>${roleTitle}</h2>
+                ${isImpostor ? impostorContent : allyContent}
+            </div>
+        `;
+        }, 2000);
+    } catch (e) {
+        console.error("Error in showRole:", e);
+        alert("Error al mostrar rol: " + e.message);
+    }
 }
 
 function nextTurn() {
@@ -988,6 +1051,7 @@ function updateTimerDisplay() {
 // Navegación ROBUSTA
 function switchView(viewName) {
 
+    // Mapeo explicito de IDs
     const map = {
         'home': 'home-view',
         'players': 'players-view',
@@ -995,9 +1059,11 @@ function switchView(viewName) {
         'pass': 'pass-view',
         'reveal': 'reveal-view',
         'game': 'game-view',
+        'game': 'game-view',
         'voting': 'voting-view',
         'onlineSetup': 'online-setup-view',
-        'onlineLobby': 'online-lobby-view'
+        'onlineLobby': 'online-lobby-view',
+        'onlineRole': 'online-role-view'
     };
 
     const targetId = map[viewName];
@@ -1016,12 +1082,9 @@ function switchView(viewName) {
         targetEl.classList.remove('hidden');
         targetEl.classList.add('active');
 
-        // Inline styles to OVERRIDE everything
-        targetEl.style.display = 'flex';
-        targetEl.style.opacity = '1';
-        targetEl.style.visibility = 'visible';
-        targetEl.style.zIndex = '9999'; // Force on top
-        targetEl.style.pointerEvents = 'all';
+        // Force brute force visibility
+        targetEl.style.setProperty('display', 'flex', 'important');
+        targetEl.style.setProperty('opacity', '1', 'important');
     } else {
         alert("ERROR: No se encuentra la vista " + targetId);
     }
@@ -1339,63 +1402,48 @@ function iniciarReparto(modoJuego, categoriaSeleccionada) {
 function mostrarPantallaRol(role, word, hint) {
     console.log("mostrarPantallaRol called", { role, word, hint });
 
-    let roleTitle = role === 'IMPOSTOR' ? 'ERES EL IMPOSTOR' : 'ALIADO';
-    let roleIcon = role === 'IMPOSTOR' ? 'fa-user-secret' : 'fa-mask';
-    let content = '';
-    let themeClass = role === 'IMPOSTOR' ? 'impostor-theme' : '';
+    // Use the new ONLINE ROLE VIEW
+    const cardEl = document.getElementById('online-role-card');
+    const roleNameEl = document.getElementById('online-role-name');
+    const wordDisplayEl = document.getElementById('online-word-display');
+    const iconEl = document.getElementById('online-icon');
+    const hintTextEl = document.getElementById('online-hint-text');
 
-    const cardEl = document.getElementById('role-card-content');
     if (!cardEl) {
-        console.error("CRITICAL: role-card-content not found in DOM");
+        console.error("CRITICAL: online-role-card not found");
         return;
     }
 
-    cardEl.className = 'role-card ' + themeClass;
+    // Set Data
+    roleNameEl.innerText = (role === 'IMPOSTOR') ? 'ERES EL IMPOSTOR' : 'ALIADO';
+    wordDisplayEl.innerText = word;
+    hintTextEl.innerText = hint || "";
 
+    // Theme & Icon
     if (role === 'IMPOSTOR') {
-        if (word === '???') {
-            if (hint) {
-                content = `
-                    <p class="role-subtitle">Pista:</p>
-                    <div class="secret-word-box" style="font-size: 1.5rem">${hint}</div>
-                    <p class="instruction">Úsala para guiarte.</p>
-                  `;
-            } else {
-                content = `
-                    <div class="secret-word-box">???</div>
-                    <p class="instruction">No sabes la palabra. ¡Miente!</p>
-                  `;
-            }
-        } else {
-            content = `
-                <p class="role-subtitle">Palabra Señuelo:</p>
-                <div class="secret-word-box">${word}</div>
-                <p class="instruction">¡Es falsa! Úsala para confundir.</p>
-            `;
-        }
-        if (navigator.vibrate) navigator.vibrate(200);
+        cardEl.classList.add('impostor-theme');
+        iconEl.className = "fa-solid fa-user-secret";
     } else {
-        content = `
-             <p class="role-subtitle">Tu Palabra:</p>
-             <div class="secret-word-box">${word}</div>
-             <p class="instruction">Di una palabra relacionada.</p>
-         `;
+        cardEl.classList.remove('impostor-theme');
+        iconEl.className = "fa-solid fa-mask"; // or fa-user-tie
     }
 
-    // SIN ANIMACIÓN (Debug para arreglar pantalla negra)
-    // Renderizado inmediato y directo
-    console.log("Renderizando contenido final DIRECTAMENTE...");
+    // Switch View
+    switchView('onlineRole');
 
-    // 1. Asignar HTML
-    const finalHTML = `
-        <i class="fa-solid ${roleIcon} role-icon"></i>
-        <h2>${roleTitle}</h2>
-        ${content}
-        <div style="margin-top:20px; font-size:0.8rem; opacity:0.7;">Modo Online</div>
-    `;
+    // REDUNDANT FAILSAFE for "Online Role"
+    const viewEl = document.getElementById('online-role-view');
+    if (viewEl) {
+        viewEl.style.setProperty('display', 'flex', 'important');
+        viewEl.style.setProperty('opacity', '1', 'important');
+        viewEl.style.setProperty('z-index', '9999', 'important');
+    }
 
-    cardEl.innerHTML = finalHTML;
-
-    // 2. Cambiar Vista
-    switchView('reveal');
+    // Button Logic handled in HTML/Global listener or add here:
+    const btn = document.getElementById('btn-close-role');
+    if (btn) btn.onclick = () => {
+        // Go to game view or wherever appropriate
+        // If Host -> Maybe Host controls? Usually standard game view
+        switchView('game');
+    };
 }
