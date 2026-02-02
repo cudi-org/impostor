@@ -248,80 +248,13 @@ let gameState = {
 };
 
 // Elementos DOM
-const dom = {
-    views: {
-        home: document.getElementById('home-view'),
-        players: document.getElementById('players-view'),
-        rules: document.getElementById('rules-view'),
-        pass: document.getElementById('pass-view'),
-        reveal: document.getElementById('reveal-view'),
-        game: document.getElementById('game-view'),
-        voting: document.getElementById('voting-view'),
-        onlineSetup: document.getElementById('online-setup-view'),
-        onlineLobby: document.getElementById('online-lobby-view')
-    },
-    online: {
-        btnBack: document.getElementById('btn-back-home-online'),
-        inpRoom: document.getElementById('inp-room-name'),
-        inpAlias: document.getElementById('inp-alias'),
-        btnJoin: document.getElementById('btn-join-room'),
-        btnLeave: document.getElementById('btn-leave-lobby'),
-        playersList: document.getElementById('online-players-list'),
-        hostControls: document.getElementById('host-controls'),
-        modeSelect: document.getElementById('online-game-mode'),
-        catSelect: document.getElementById('online-category'),
-        btnDist: document.getElementById('btn-distribute-roles'),
-        status: document.getElementById('lobby-status'),
-        qrContainer: document.getElementById('qrcode'),
-        roomDisplay: document.getElementById('room-display-code'),
-        btnShare: document.getElementById('btn-share-link'),
-        impostorsSegments: document.querySelectorAll('#online-impostors-control .segment')
-    },
-    home: {
-        btnLocal: document.getElementById('btn-mode-local'),
-        btnOnline: document.getElementById('btn-mode-online')
-    },
-    players: {
-        playerCount: document.getElementById('player-count'),
-        playersList: document.getElementById('players-list'),
-        btnDec: document.getElementById('btn-dec-players'),
-        btnInc: document.getElementById('btn-inc-players'),
-        btnNext: document.getElementById('btn-next-rules')
-    },
-    rules: {
-        segments: document.querySelectorAll('.segment'),
-        modeSelect: document.getElementById('game-mode'),
-        modeDesc: document.getElementById('mode-description'),
-        timerSelect: document.getElementById('timer-setting'),
-        expressCheck: document.getElementById('express-mode'),
-        btnStart: document.getElementById('btn-start')
-    },
-    pass: {
-        playerNum: document.getElementById('current-player-num'),
-        btnReveal: document.getElementById('btn-reveal')
-    },
-    reveal: {
-        card: document.getElementById('role-card-content'),
-        btnHide: document.getElementById('btn-hide')
-    },
-    game: {
-        timer: document.getElementById('timer-display'),
-        statusText: document.getElementById('game-status-text'),
-        expressUI: document.getElementById('express-ui'),
-        expressSelection: document.getElementById('express-start-selection'),
-        expressStartList: document.getElementById('express-start-list'),
-        expressActiveGame: document.getElementById('express-active-game'),
-        expressName: document.getElementById('express-player-name'),
-        btnExpressNext: document.getElementById('btn-express-next'),
-        btnExpressVote: document.getElementById('btn-express-vote'),
-        btnVote: document.getElementById('btn-start-vote'),
-        btnNew: document.getElementById('btn-new-game'),
-        btnHome: document.getElementById('btn-home')
-    },
-    voting: {
-        grid: document.getElementById('voting-grid')
-    }
-};
+// DOM Helper: Get element dynamically to avoid null references on init
+const $ = (id) => document.getElementById(id);
+
+// Elementos DOM (Dynamically accessed or minimal cache)
+// Removed static 'const dom = ...' to prevent initialization race conditions.
+// We will use $(id) or document.querySelector locally.
+
 
 // Init moved to DOMContentLoaded at bottom
 
@@ -364,72 +297,98 @@ document.addEventListener('click', (e) => {
 });
 
 // Original listeners kept as backup but redundant
-if (dom.home.btnLocal) { /* ... */ }
-else { console.warn("BTN LOCAL (DOM) NOT FOUND"); }
+// Status Light Removed
+// Global Event Delegation (Replaces all individual listeners)
 
+// Global Event Delegation (Replaces all individual listeners)
+document.addEventListener('click', (e) => {
+    const target = e.target;
 
-// Navigation Listeners
-const btnBackHome = document.getElementById('btn-back-home');
-if (btnBackHome) btnBackHome.addEventListener('click', () => switchView('home'));
-
-if (dom.players.btnNext) dom.players.btnNext.addEventListener('click', () => {
-    // Save names to LocalStorage before moving on
-    for (let i = 0; i < gameState.players; i++) {
-        const val = document.getElementById(`player-input-${i}`).value;
-        if (val) safeStorage.set(`local_p_${i}`, val);
+    // Home
+    if (target.closest('#btn-mode-local')) {
+        switchView('players');
+        setTimeout(generatePlayerInputs, 100);
     }
-    switchView('rules');
-});
-
-const btnBackPlayers = document.getElementById('btn-back-players');
-if (btnBackPlayers) btnBackPlayers.addEventListener('click', () => switchView('players'));
-
-// Setup Listeners
-if (dom.players.btnDec) dom.players.btnDec.addEventListener('click', () => updatePlayers(-1));
-if (dom.players.btnInc) dom.players.btnInc.addEventListener('click', () => updatePlayers(1));
-if (dom.rules.segments) dom.rules.segments.forEach(seg => seg.addEventListener('click', (e) => setImpostors(e.target)));
-if (dom.rules.modeSelect) dom.rules.modeSelect.addEventListener('change', updateModeDescription);
-if (dom.rules.btnStart) dom.rules.btnStart.addEventListener('click', startGame);
-
-if (dom.pass.btnReveal) dom.pass.btnReveal.addEventListener('click', showRole);
-if (dom.reveal.btnHide) dom.reveal.btnHide.addEventListener('click', () => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        switchView('onlineLobby');
-    } else {
-        nextTurn();
+    if (target.closest('#btn-mode-online')) {
+        switchView('onlineSetup');
     }
+
+    // Navigation
+    if (target.closest('#btn-back-home') || target.closest('#btn-back-home-online') || target.closest('#btn-home')) {
+        switchView('home');
+    }
+    if (target.closest('#btn-back-players')) {
+        switchView('players');
+    }
+
+    // Players View
+    if (target.closest('#btn-dec-players')) updatePlayers(-1);
+    if (target.closest('#btn-inc-players')) updatePlayers(1);
+    if (target.closest('#btn-next-rules')) {
+        // Save LocalStorage
+        for (let i = 0; i < gameState.players; i++) {
+            const input = document.getElementById(`player-input-${i}`);
+            if (input && input.value) safeStorage.set(`local_p_${i}`, input.value);
+        }
+        switchView('rules');
+    }
+
+    // Rules
+    if (target.closest('.segment')) {
+        setImpostors(target);
+        setOnlineImpostors(target); // Handles both just in case
+    }
+    if (target.closest('#btn-start')) startGame();
+
+    // Pass
+    if (target.closest('#btn-reveal')) showRole();
+
+    // Reveal
+    if (target.closest('#btn-hide')) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            switchView('onlineLobby');
+        } else {
+            nextTurn();
+        }
+    }
+
+    // Game
+    if (target.closest('#btn-express-next')) nextExpressTurn();
+    if (target.closest('#btn-express-vote') || target.closest('#btn-start-vote')) startVotingPhase();
+    if (target.closest('#btn-new-game')) switchView('players');
+
+    // Online
+    if (target.closest('#btn-join-room')) joinRoom();
+    if (target.closest('#btn-leave-lobby')) leaveRoom();
+    if (target.closest('#btn-distribute-roles')) {
+        iniciarReparto($('online-game-mode').value, $('online-category').value);
+    }
+    if (target.closest('#btn-share-link')) shareLink();
+
+    // New Online Flow Listers
+    if (target.closest('#btn-goto-config')) switchView('onlineConfig');
+    if (target.closest('#btn-back-lobby')) switchView('onlineLobby');
 });
 
-if (dom.game.btnExpressNext) dom.game.btnExpressNext.addEventListener('click', nextExpressTurn);
-if (dom.game.btnExpressVote) dom.game.btnExpressVote.addEventListener('click', startVotingPhase);
-if (dom.game.btnVote) dom.game.btnVote.addEventListener('click', startVotingPhase);
-if (dom.game.btnNew) dom.game.btnNew.addEventListener('click', () => switchView('players'));
-if (dom.game.btnHome) dom.game.btnHome.addEventListener('click', () => switchView('home'));
-
-// Online Listeners
-if (dom.online.btnBack) dom.online.btnBack.addEventListener('click', () => switchView('home'));
-if (dom.online.btnJoin) dom.online.btnJoin.addEventListener('click', joinRoom);
-if (dom.online.btnLeave) dom.online.btnLeave.addEventListener('click', leaveRoom);
-if (dom.online.btnDist) dom.online.btnDist.addEventListener('click', () => {
-    // console.log("Btn Dist click");
-    iniciarReparto(dom.online.modeSelect.value, dom.online.catSelect.value);
+// Change listeners need manual attachment or delegation change
+document.addEventListener('change', (e) => {
+    if (e.target.id === 'game-mode') updateModeDescription();
 });
-
-if (dom.online.btnShare) dom.online.btnShare.addEventListener('click', shareLink);
-if (dom.online.impostorsSegments) dom.online.impostorsSegments.forEach(seg => seg.addEventListener('click', (e) => setOnlineImpostors(e.target)));
 
 // Funciones de Configuración
 function updatePlayers(change) {
     let newVal = gameState.players + change;
     if (newVal >= CONFIG.minPlayers && newVal <= CONFIG.maxPlayers) {
         gameState.players = newVal;
-        dom.players.playerCount.textContent = gameState.players;
+        const countEl = $('player-count');
+        if (countEl) countEl.textContent = gameState.players;
         generatePlayerInputs();
-        updateImpostorOptions(); // Refresh options based on count
+        updateImpostorOptions();
     }
 }
 
 function generatePlayerInputs() {
+    // console.log("Generando inputs...");
     const list = document.getElementById('players-list');
     if (!list) return;
 
@@ -492,14 +451,15 @@ function setImpostors(target) {
 }
 
 function updateModeDescription() {
-    gameState.mode = dom.rules.modeSelect.value;
+    gameState.mode = $('game-mode').value;
     const descriptions = {
         classic: 'Clásico: Impostor tiene una pista genérica para ayudarse.',
         confusion: 'Confusión: Impostor tiene una palabra falsa muy parecida.',
         spy: 'Espía: Impostor NO tiene ayudas. Dificultad Máxima.',
         unconscious: 'Inconsciente: Impostor cree que es Aliado (palabra falsa).'
     };
-    dom.rules.modeDesc.querySelector('span').textContent = descriptions[gameState.mode];
+    const descEl = $('mode-description');
+    if (descEl) descEl.querySelector('span').textContent = descriptions[gameState.mode];
 }
 
 // Lógica del Juego
@@ -509,8 +469,9 @@ function startGame() {
     try {
         // gameState.hintType removed, driven by mode now
         // Store Timer & Express Setting
-        gameState.timerSetting = dom.rules.timerSelect.value;
-        gameState.expressActive = dom.rules.expressCheck.checked;
+        gameState.timerSetting = $('timer-setting').value;
+        const expressCheck = $('express-mode');
+        gameState.expressActive = expressCheck ? expressCheck.checked : false;
 
         // 0. Recoger nombres
         gameState.playerNames = [];
@@ -621,7 +582,8 @@ function startGame() {
 
 function updatePassView() {
     const name = gameState.playerNames[gameState.currentTurn];
-    dom.pass.playerNum.textContent = name;
+    const numEl = $('current-player-num');
+    if (numEl) numEl.textContent = name;
 }
 
 function showRole() {
@@ -637,7 +599,9 @@ function showRole() {
         let themeClass = '';
 
         // Reset classes
-        dom.reveal.card.className = 'role-card';
+        const cardEl = $('role-card-content');
+        if (!cardEl) return;
+        cardEl.className = 'role-card';
         // alert("DEBUG LOCAL: Role=" + role + " Word=" + data.word);
 
         // SPECIAL MODE: UNCONSCIOUS
@@ -657,7 +621,7 @@ function showRole() {
              <p class="instruction">${allyInstruction}</p>
         `;
 
-            dom.reveal.card.innerHTML = `
+            cardEl.innerHTML = `
             <div class="${themeClass}">
                 <i class="fa-solid ${roleIcon} role-icon"></i>
                 <h2>${roleTitle}</h2>
@@ -669,23 +633,20 @@ function showRole() {
         }
 
         if (isImpostor) {
-            dom.reveal.card.classList.add('impostor-theme');
+            cardEl.classList.add('impostor-theme');
             themeClass = 'impostor-theme';
             roleIcon = 'fa-user-secret';
             roleTitle = 'ERES EL IMPOSTOR';
 
-            // Haptic Feedback only if they KNOW they are impostor
             if (navigator.vibrate) navigator.vibrate(200);
 
             if (gameState.mode === 'spy') {
-                // SPY MODE: No hints
                 impostorContent = `
                 <div class="secret-word-box">???</div>
                 <p class="instruction">No sabes la palabra. ¡Miente!</p>
             `;
             }
             else if (gameState.mode === 'classic') {
-                // CLASSIC: Generic Hint
                 impostorContent = `
                 <p class="role-subtitle">Pista:</p>
                 <div class="secret-word-box" style="font-size: 1.5rem">${data.hint}</div>
@@ -693,7 +654,6 @@ function showRole() {
             `;
             }
             else if (gameState.mode === 'confusion') {
-                // CONFUSION: Decoy Word but knows it's fake
                 impostorContent = `
                 <p class="role-subtitle">Palabra Señuelo:</p>
                 <div class="secret-word-box">${data.decoy}</div>
@@ -710,24 +670,17 @@ function showRole() {
          <p class="instruction">${allyInstruction}</p>
     `;
 
-        // Render to Card
-        // Animation Start
-        dom.reveal.card.innerHTML = `
-        <h2 class="pulse">Recibiendo Rol...</h2>
-    `;
-
-        switchView('reveal');
-
-        // Display actual content after delay
-        setTimeout(() => {
-            dom.reveal.card.innerHTML = `
+        // Render to Card - IMMEDIATE (No Delay)
+        cardEl.innerHTML = `
             <div class="${themeClass}">
                 <i class="fa-solid ${roleIcon} role-icon"></i>
                 <h2>${roleTitle}</h2>
                 ${isImpostor ? impostorContent : allyContent}
             </div>
         `;
-        }, 2000);
+
+        switchView('reveal');
+
     } catch (e) {
         console.error("Error in showRole:", e);
         alert("Error al mostrar rol: " + e.message);
@@ -1070,6 +1023,7 @@ function switchView(viewName) {
         'voting': 'voting-view',
         'onlineSetup': 'online-setup-view',
         'onlineLobby': 'online-lobby-view',
+        'onlineConfig': 'online-config-view',
         'onlineRole': 'online-role-view'
     };
 
@@ -1113,22 +1067,37 @@ function checkUrlParams() {
     const params = new URLSearchParams(window.location.search);
     const room = params.get('room');
     if (room) {
-        dom.online.inpRoom.value = room;
+        const roomInp = $('inp-room-name');
+        const aliasInp = $('inp-alias');
+        if (roomInp) {
+            roomInp.value = room;
+            roomInp.disabled = true;
+        }
         // Auto-switch to name input if room found
         switchView('onlineSetup');
-        dom.online.inpRoom.disabled = true; // Lock room input if from link
-        dom.online.inpAlias.focus();
+        if (aliasInp) aliasInp.focus();
     }
 }
 
 function joinRoom() {
-    const roomName = dom.online.inpRoom.value.trim();
-    const alias = dom.online.inpAlias.value.trim();
+    const roomInp = $('inp-room-name');
+    const aliasInp = $('inp-alias');
+
+    if (!roomInp || !aliasInp) return;
+
+    const roomName = roomInp.value.trim();
+    const alias = aliasInp.value.trim();
 
     if (!roomName || !alias) {
         alert("Introduce sala y nombre");
         return;
     }
+
+    // Feedback visual de carga
+    const btnJoin = $('btn-join-room');
+    const originalText = btnJoin.innerText;
+    btnJoin.disabled = true;
+    btnJoin.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando...';
 
     currentRoom = roomName;
 
@@ -1146,6 +1115,10 @@ function joinRoom() {
     };
 
     socket.onmessage = (event) => {
+        // Restaurar botón al recibir respuesta (aunque cambiemos de vista)
+        btnJoin.disabled = false;
+        btnJoin.innerText = originalText;
+
         let data;
         try { data = JSON.parse(event.data); } catch (e) { return; }
 
@@ -1199,6 +1172,12 @@ function joinRoom() {
     socket.onerror = (e) => {
         console.error("Error WS", e);
         alert("Error de conexión");
+        // Restaurar estado del botón
+        const btnJoin = $('btn-join-room');
+        if (btnJoin) {
+            btnJoin.disabled = false;
+            btnJoin.innerText = "ENTRAR";
+        }
     };
 }
 
@@ -1211,19 +1190,36 @@ function leaveRoom() {
 }
 
 function enterLobby() {
+    console.log("--> ENTER LOBBY. isHost:", isHost);
     switchView('onlineLobby');
     onlinePlayers = [];
 
     // QR Generation
     generateLobbyQR();
 
+    const btnConfig = document.getElementById('btn-goto-config');
+    const lobbyStatus = document.getElementById('lobby-status');
+
     if (isHost) {
-        if (dom.online.hostControls) dom.online.hostControls.classList.remove('hidden');
-        if (dom.online.status) dom.online.status.textContent = "Eres el Anfitrión. Espera a los jugadores y reparte.";
+        if (btnConfig) {
+            btnConfig.classList.remove('hidden');
+            // Force Initial Validation
+            const totalPlayers = onlinePlayers.length + 1;
+            if (totalPlayers < 3) {
+                btnConfig.disabled = true;
+                btnConfig.style.opacity = '0.5';
+                btnConfig.innerHTML = `MÍNIMO 3 JUGADORES (${totalPlayers}/3) <i class="fa-solid fa-user-clock"></i>`;
+            } else {
+                btnConfig.disabled = false;
+                btnConfig.style.opacity = '1';
+                btnConfig.innerHTML = `CONFIGURAR PARTIDA <i class="fa-solid fa-gear"></i>`;
+            }
+        }
+        if (lobbyStatus) lobbyStatus.textContent = "Eres el Anfitrión. Cuando estén todos, configura la partida.";
         populateOnlineCategories();
     } else {
-        if (dom.online.hostControls) dom.online.hostControls.classList.add('hidden');
-        if (dom.online.status) dom.online.status.textContent = "Esperando al anfitrión...";
+        if (btnConfig) btnConfig.classList.add('hidden');
+        if (lobbyStatus) lobbyStatus.textContent = "Esperando al anfitrión...";
     }
 
     actualizarListaUI();
@@ -1231,16 +1227,23 @@ function enterLobby() {
 
 function generateLobbyQR() {
     const link = `${window.location.origin}${window.location.pathname}?room=${currentRoom}`;
-    dom.online.qrContainer.innerHTML = ''; // Clear prev
-    new QRCode(dom.online.qrContainer, {
-        text: link,
-        width: 128,
-        height: 128,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-    });
-    dom.online.roomDisplay.textContent = `SALA: ${currentRoom}`;
+    const qrContainer = $('qrcode');
+    const roomDisplay = $('room-display-code');
+
+    if (qrContainer) {
+        qrContainer.innerHTML = ''; // Clear prev
+        if (typeof QRCode !== 'undefined') {
+            new QRCode(qrContainer, {
+                text: link,
+                width: 128,
+                height: 128,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+    }
+    if (roomDisplay) roomDisplay.textContent = `SALA: ${currentRoom}`;
 }
 
 function shareLink() {
@@ -1252,9 +1255,13 @@ function shareLink() {
             url: link
         }).catch(err => console.log('Error sharing', err));
     } else {
-        navigator.clipboard.writeText(link).then(() => {
-            alert('Enlace copiado al portapapeles');
-        });
+        const tempInput = document.createElement("input");
+        tempInput.value = link;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        alert('Enlace copiado al portapapeles');
     }
 }
 
@@ -1262,7 +1269,7 @@ function setOnlineImpostors(target) {
     const btn = target.closest('.segment');
     if (!btn) return;
 
-    dom.online.impostorsSegments.forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('#online-impostors-control .segment').forEach(s => s.classList.remove('active'));
     btn.classList.add('active');
 
     const val = btn.dataset.impostors;
@@ -1270,7 +1277,8 @@ function setOnlineImpostors(target) {
 }
 
 function populateOnlineCategories() {
-    const sel = dom.online.catSelect;
+    const sel = $('online-category');
+    if (!sel) return;
     sel.innerHTML = '';
 
     // Add "Todas" option
@@ -1288,7 +1296,8 @@ function populateOnlineCategories() {
 }
 
 function actualizarListaUI() {
-    const list = dom.online.playersList;
+    const list = $('online-players-list');
+    if (!list) return;
     list.innerHTML = '';
 
     if (onlinePlayers.length === 0 && isHost) {
@@ -1303,12 +1312,33 @@ function actualizarListaUI() {
         li.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
         list.appendChild(li);
     });
+
+    // Validación Mínimo 3 Jugadores
+    if (isHost) {
+        const totalPlayers = onlinePlayers.length + 1; // +1 eres tú (Host)
+        const btnConfig = document.getElementById('btn-goto-config');
+        const lobbyStatus = document.getElementById('lobby-status');
+
+        if (totalPlayers < 3) {
+            if (btnConfig) {
+                btnConfig.disabled = true;
+                btnConfig.style.opacity = '0.5';
+                btnConfig.innerHTML = `MÍNIMO 3 JUGADORES (${totalPlayers}/3) <i class="fa-solid fa-user-clock"></i>`;
+            }
+            if (lobbyStatus) lobbyStatus.textContent = "Esperando a más jugadores...";
+        } else {
+            if (btnConfig) {
+                btnConfig.disabled = false;
+                btnConfig.style.opacity = '1';
+                btnConfig.innerHTML = `CONFIGURAR PARTIDA <i class="fa-solid fa-gear"></i>`;
+            }
+            if (lobbyStatus) lobbyStatus.textContent = "¡Listos para jugar!";
+        }
+    }
 }
 
 function iniciarReparto(modoJuego, categoriaSeleccionada) {
     if (!isHost) return;
-
-    // console.log("Iniciando reparto...", { modoJuego, categoriaSeleccionada });
 
     try {
         // 1. Select Word
@@ -1333,7 +1363,6 @@ function iniciarReparto(modoJuego, categoriaSeleccionada) {
         // Calculate number of impostors
         let numImpostors = 1;
         if (onlineImpostorsSetting === 'random') {
-            // Same logic as local
             let maxPossible = totalPlayers - 1;
             let effectiveMax = Math.min(maxPossible, (totalPlayers >= 6 ? 5 : Math.max(1, Math.floor((totalPlayers - 1) / 2))));
             numImpostors = Math.floor(Math.random() * effectiveMax) + 1;
@@ -1354,7 +1383,6 @@ function iniciarReparto(modoJuego, categoriaSeleccionada) {
             }
         }
 
-
         // 3. Send
         allPlayers.forEach((jugador, index) => {
             const soyElImpostor = (rolesMap[index] === 'IMPOSTOR');
@@ -1364,11 +1392,10 @@ function iniciarReparto(modoJuego, categoriaSeleccionada) {
                 type: 'signal',
                 role: '',
                 word: '',
-                hint: '' //, targetId for remote
+                hint: ''
             };
 
             if (jugador.id !== myPeerId) {
-                // IMPORTANT: Server expects 'targetId' matching the peerId of recipient
                 msg.targetId = jugador.id;
             }
 
@@ -1378,17 +1405,14 @@ function iniciarReparto(modoJuego, categoriaSeleccionada) {
                     msg.word = soyElImpostor ? '???' : item.word;
                     msg.hint = soyElImpostor ? item.hint : '';
                     break;
-
                 case 'Confusión':
                     msg.role = soyElImpostor ? 'IMPOSTOR' : 'ALIADO';
                     msg.word = soyElImpostor ? item.decoy : item.word;
                     break;
-
                 case 'Inconsciente':
                     msg.role = 'ALIADO';
                     msg.word = soyElImpostor ? item.decoy : item.word;
                     break;
-
                 case 'Espía':
                     msg.role = soyElImpostor ? 'IMPOSTOR' : 'ALIADO';
                     msg.word = soyElImpostor ? '???' : item.word;
@@ -1396,7 +1420,6 @@ function iniciarReparto(modoJuego, categoriaSeleccionada) {
             }
 
             if (jugador.id === myPeerId) {
-                // Host sees their own role directly
                 mostrarPantallaRol(msg.role, msg.word, msg.hint);
             } else {
                 socket.send(JSON.stringify(msg));
@@ -1409,69 +1432,31 @@ function iniciarReparto(modoJuego, categoriaSeleccionada) {
     }
 }
 
-// Unified function to accept arguments (host call) or object (socket call handles parsing before)
-// Wait, socket.onmessage calls it with (role, word, hint). Host calls it with (role, word, hint).
-// So signature is fine. Just ensure data flow is correct.
 function mostrarPantallaRol(role, word, hint) {
-    console.log("mostrarPantallaRol called", { role, word, hint });
-
-    // Use the new ONLINE ROLE VIEW
     const cardEl = document.getElementById('online-role-card');
     const roleNameEl = document.getElementById('online-role-name');
     const wordDisplayEl = document.getElementById('online-word-display');
     const iconEl = document.getElementById('online-icon');
     const hintTextEl = document.getElementById('online-hint-text');
 
-    if (!cardEl) {
-        console.error("CRITICAL: online-role-card not found");
-        return;
-    }
+    if (!cardEl) return;
 
-    // Set Data
     roleNameEl.innerText = (role === 'IMPOSTOR') ? 'ERES EL IMPOSTOR' : 'ALIADO';
     wordDisplayEl.innerText = word;
     hintTextEl.innerText = hint || "";
 
-    // Theme & Icon
     if (role === 'IMPOSTOR') {
         cardEl.classList.add('impostor-theme');
         iconEl.className = "fa-solid fa-user-secret";
     } else {
         cardEl.classList.remove('impostor-theme');
-        iconEl.className = "fa-solid fa-mask"; // or fa-user-tie
+        iconEl.className = "fa-solid fa-mask";
     }
 
-    // Switch View
     switchView('onlineRole');
-
-    // REDUNDANT FAILSAFE for "Online Role"
-    const viewEl = document.getElementById('online-role-view');
-    if (viewEl) {
-        viewEl.style.setProperty('display', 'flex', 'important');
-        viewEl.style.setProperty('opacity', '1', 'important');
-        viewEl.style.setProperty('z-index', '9999', 'important');
-    }
-
-    // Button Logic handled in HTML/Global listener or add here:
-    const btn = document.getElementById('btn-close-role');
-    if (btn) btn.onclick = () => {
-        // Go to game view or wherever appropriate
-        // If Host -> Maybe Host controls? Usually standard game view
-        switchView('game');
-    };
 }
 
-// --- AL FINAL DE TODO TU APP.JS ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Generar inputs iniciales
     if (typeof generatePlayerInputs === 'function') generatePlayerInputs();
-
-    // Comprobar URL para salas online
     if (typeof checkUrlParams === 'function') checkUrlParams();
-
-    // Vincular el botón de modo local explícitamente y con delay
-    // Nota: El listener original ya existe arriba, pero este es un refuerzo.
-    // Para evitar dobles listeners, podríamos confiar en el de arriba, 
-    // pero el usuario pidió explícitamente esto. 
-    // Si el de arriba falla por no estar en DOMContentLoaded, este funcionará.
 });

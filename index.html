@@ -93,8 +93,24 @@
                 </ul>
             </div>
 
-            <!-- Botón SOLO para el HOST -->
-            <div id="host-controls" class="hidden">
+            <!-- Botón de ACCIÓN para el HOST -->
+            <button id="btn-goto-config" class="btn-primary hidden" style="margin-top:20px;">
+                CONFIGURAR PARTIDA <i class="fa-solid fa-gear"></i>
+            </button>
+
+            <p id="lobby-status" style="text-align:center; margin-top:20px; color:var(--text-muted);">Esperando al
+                anfitrión...</p>
+        </section>
+
+        <!-- VISTA ONLINE 3: CONFIGURACIÓN HOST -->
+        <section id="online-config-view" class="view hidden">
+            <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 20px;">
+                <button id="btn-back-lobby" style="background:none; border:none; color:white; font-size:1.5rem;"><i
+                        class="fa-solid fa-arrow-left"></i></button>
+                <h2 style="margin-left: 15px; font-size: 1.5rem;">Configuración</h2>
+            </div>
+
+            <div class="config-card">
                 <div class="control-group">
                     <label>Impostores</label>
                     <div class="segmented-control" id="online-impostors-control">
@@ -114,6 +130,7 @@
                         <option value="Inconsciente">Inconsciente</option>
                     </select>
                 </div>
+
                 <div class="control-group">
                     <label>Categoría</label>
                     <select id="online-category"
@@ -121,223 +138,221 @@
                         <!-- Fill dynamically -->
                     </select>
                 </div>
+
                 <button id="btn-distribute-roles" class="btn-primary pulse" style="margin-top:20px;">
                     ¡REPARTIR ROLES!
                 </button>
             </div>
+        </section>
 
-            <p id="lobby-status" style="text-align:center; margin-top:20px; color:var(--text-muted);">Esperando al
-                anfitrión...</p>
+        <!-- VISTA 1.1: JUGADORES -->
+        <section id="players-view" class="view hidden">
+            <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 5px;">
+                <button id="btn-back-home" style="background:none; border:none; color:white; font-size:1.5rem;"><i
+                        class="fa-solid fa-arrow-left"></i></button>
+                <h2 style="margin-left: 15px; font-size: 1.5rem;">Jugadores</h2>
+            </div>
 
-            <!-- VISTA 1.1: JUGADORES -->
-            <section id="players-view" class="view hidden">
-                <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 5px;">
-                    <button id="btn-back-home" style="background:none; border:none; color:white; font-size:1.5rem;"><i
-                            class="fa-solid fa-arrow-left"></i></button>
-                    <h2 style="margin-left: 15px; font-size: 1.5rem;">Jugadores</h2>
+            <p style="text-align:center; color:var(--text-muted); margin-bottom:15px; font-size:0.9rem;">
+                ¿Quiénes van a jugar?
+            </p>
+
+            <div class="config-card"
+                style="display: flex; flex-direction: column; max-height: 65vh; transition: height 0.3s;">
+                <div class="control-group">
+                    <div class="counter-control">
+                        <button id="btn-dec-players"><i class="fa-solid fa-minus"></i></button>
+                        <span id="player-count">4</span>
+                        <button id="btn-inc-players"><i class="fa-solid fa-plus"></i></button>
+                    </div>
                 </div>
 
-                <p style="text-align:center; color:var(--text-muted); margin-bottom:15px; font-size:0.9rem;">
-                    ¿Quiénes van a jugar?
+                <div class="control-group"
+                    style="flex:1; overflow:hidden; display:flex; flex-direction:column; min-height: 0;">
+                    <div id="players-list" class="players-grid" style="flex:1; overflow-y:auto;">
+                        <!-- Inputs generados por JS -->
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-next-rules" class="btn-primary">
+                SIGUIENTE
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </section>
+
+        <!-- VISTA 1.2: REGLAS -->
+        <section id="rules-view" class="view hidden">
+            <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 20px;">
+                <button id="btn-back-players" style="background:none; border:none; color:white; font-size:1.5rem;"><i
+                        class="fa-solid fa-arrow-left"></i></button>
+                <h2 style="margin-left: 15px; font-size: 1.5rem;">Reglas</h2>
+            </div>
+
+            <div class="config-card">
+                <div class="control-group">
+                    <label>Impostores</label>
+                    <div class="segmented-control">
+                        <button class="segment active" data-impostors="1">1</button>
+                        <button class="segment" data-impostors="2">2</button>
+                        <button class="segment" data-impostors="random"><i class="fa-solid fa-shuffle"></i></button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Modo de Juego</label>
+                    <select id="game-mode">
+                        <option value="classic">Clásico</option>
+                        <option value="confusion">Confusión</option>
+                        <option value="spy">Espía</option>
+                        <option value="unconscious">Inconsciente</option>
+                    </select>
+                </div>
+
+                <div id="mode-description" class="mode-info">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Típico: Todos saben la palabra menos el impostor.</span>
+                </div>
+                <div class="control-group">
+                    <label>Tiempo de Debate</label>
+                    <select id="timer-setting">
+                        <option value="180">3 Minutos</option>
+                        <option value="300">5 Minutos</option>
+                        <option value="600">10 Minutos</option>
+                        <option value="infinite">Sin Límite</option>
+                    </select>
+                </div>
+
+                <div class="control-group checkbox-group"
+                    style="display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.2); padding:10px; border-radius:12px;">
+                    <input type="checkbox" id="express-mode"
+                        style="width:20px; height:20px; accent-color:var(--primary);">
+                    <label for="express-mode" style="margin:0; cursor:pointer;">Ronda Express (10s/turno)</label>
+                </div>
+            </div>
+
+            <button id="btn-start" class="btn-primary pulse">
+                JUGAR
+                <i class="fa-solid fa-play"></i>
+            </button>
+        </section>
+
+        <!-- VISTA 2: PASE DE TURNO -->
+        <section id="pass-view" class="view hidden">
+            <div class="card-container">
+                <div class="turn-info">
+                    <p class="sub-label">TURNO DE</p>
+                    <h2 id="current-player-num" class="player-name-display">Alex</h2>
+                </div>
+                <div class="instruction-icon">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                </div>
+                <p style="text-align:center; margin-bottom:20px; color:var(--text-muted)">Pásale el móvil a este
+                    jugador
                 </p>
+                <button id="btn-reveal" class="btn-primary">VER MI ROL</button>
+            </div>
+        </section>
 
-                <div class="config-card"
-                    style="display: flex; flex-direction: column; max-height: 65vh; transition: height 0.3s;">
-                    <div class="control-group">
-                        <div class="counter-control">
-                            <button id="btn-dec-players"><i class="fa-solid fa-minus"></i></button>
-                            <span id="player-count">4</span>
-                            <button id="btn-inc-players"><i class="fa-solid fa-plus"></i></button>
-                        </div>
-                    </div>
+        <!-- VISTA 3: REVELACIÓN -->
+        <section id="reveal-view" class="view hidden">
+            <div class="role-card" id="role-card-content">
+                <!-- Contenido dinámico -->
+            </div>
+            <button id="btn-hide" class="btn-secondary">OCULTAR</button>
+        </section>
 
-                    <div class="control-group"
-                        style="flex:1; overflow:hidden; display:flex; flex-direction:column; min-height: 0;">
-                        <div id="players-list" class="players-grid" style="flex:1; overflow-y:auto;">
-                            <!-- Inputs generados por JS -->
-                        </div>
-                    </div>
+        <!-- VISTA 4: JUEGO EN CURSO -->
+        <section id="game-view" class="view hidden">
+            <header>
+                <h2>¡A JUGAR!</h2>
+            </header>
+
+            <div class="game-status">
+                <div class="timer">
+                    <span id="timer-display">00:00</span>
                 </div>
 
-                <button id="btn-next-rules" class="btn-primary">
-                    SIGUIENTE
-                    <i class="fa-solid fa-arrow-right"></i>
+                <!-- Normal Status -->
+                <p id="game-status-text">Turno de debate</p>
+
+                <!-- Express UI -->
+                <div id="express-ui" class="hidden" style="margin-top:20px;">
+                    <!-- Step 1: Select Who Starts -->
+                    <div id="express-start-selection">
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">¿QUIÉN EMPIEZA?
+                        </p>
+                        <div id="express-start-list"
+                            style="display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:300px; overflow-y:auto;">
+                            <!-- Buttons generated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Step 2: The Game Loop (Hidden initially) -->
+                    <div id="express-active-game" class="hidden">
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:5px;">TURNO DE PALABRA
+                        </p>
+                        <h2 id="express-player-name"
+                            style="color:var(--accent-blue); font-size:2rem; margin-bottom:20px;">
+                            Alex</h2>
+                        <button id="btn-express-next" class="btn-secondary"
+                            style="border-color:var(--accent-green); color:var(--accent-green); height:80px; font-size:1.5rem; margin-bottom:10px;">
+                            <i class="fa-solid fa-check"></i> PASAR
+                        </button>
+                        <button id="btn-express-vote" class="btn-text"
+                            style="color:var(--text-muted); font-size:0.9rem;">
+                            <i class="fa-solid fa-gavel"></i> Ir a Votación
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button id="btn-start-vote" class="btn-primary" style="background:var(--accent-blue);">
+                    <i class="fa-solid fa-gavel"></i> VOTAR
                 </button>
-            </section>
+                <button id="btn-new-game" class="btn-secondary">NUEVA PARTIDA</button>
+                <button id="btn-home" class="btn-text">Volver al Inicio</button>
+            </div>
+        </section>
 
-            <!-- VISTA 1.2: REGLAS -->
-            <section id="rules-view" class="view hidden">
-                <div class="config-header" style="width:100%; display:flex; align-items:center; margin-bottom: 20px;">
-                    <button id="btn-back-players"
-                        style="background:none; border:none; color:white; font-size:1.5rem;"><i
-                            class="fa-solid fa-arrow-left"></i></button>
-                    <h2 style="margin-left: 15px; font-size: 1.5rem;">Reglas</h2>
+        <!-- VISTA 5: VOTACIÓN -->
+        <section id="voting-view" class="view hidden">
+            <header>
+                <h2>VOTACIÓN</h2>
+                <p>Toca al jugador para eliminarlo</p>
+            </header>
+
+            <div id="voting-grid"
+                style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px; width:100%;">
+                <!-- Cards generated dynamically -->
+            </div>
+        </section>
+
+        <!-- VISTA ONLINE 3: ROL -->
+        <section id="online-role-view" class="view hidden">
+            <div class="role-card" id="online-role-card">
+                <div class="role-icon">
+                    <i id="online-icon" class="fa-solid fa-user-secret"></i>
                 </div>
-
-                <div class="config-card">
-                    <div class="control-group">
-                        <label>Impostores</label>
-                        <div class="segmented-control">
-                            <button class="segment active" data-impostors="1">1</button>
-                            <button class="segment" data-impostors="2">2</button>
-                            <button class="segment" data-impostors="random"><i class="fa-solid fa-shuffle"></i></button>
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label>Modo de Juego</label>
-                        <select id="game-mode">
-                            <option value="classic">Clásico</option>
-                            <option value="confusion">Confusión</option>
-                            <option value="spy">Espía</option>
-                            <option value="unconscious">Inconsciente</option>
-                        </select>
-                    </div>
-
-                    <div id="mode-description" class="mode-info">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <span>Típico: Todos saben la palabra menos el impostor.</span>
-                    </div>
-                    <div class="control-group">
-                        <label>Tiempo de Debate</label>
-                        <select id="timer-setting">
-                            <option value="180">3 Minutos</option>
-                            <option value="300">5 Minutos</option>
-                            <option value="600">10 Minutos</option>
-                            <option value="infinite">Sin Límite</option>
-                        </select>
-                    </div>
-
-                    <div class="control-group checkbox-group"
-                        style="display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.2); padding:10px; border-radius:12px;">
-                        <input type="checkbox" id="express-mode"
-                            style="width:20px; height:20px; accent-color:var(--primary);">
-                        <label for="express-mode" style="margin:0; cursor:pointer;">Ronda Express (10s/turno)</label>
-                    </div>
-                </div>
-
-                <button id="btn-start" class="btn-primary pulse">
-                    JUGAR
-                    <i class="fa-solid fa-play"></i>
-                </button>
-            </section>
-
-            <!-- VISTA 2: PASE DE TURNO -->
-            <section id="pass-view" class="view hidden">
-                <div class="card-container">
-                    <div class="turn-info">
-                        <p class="sub-label">TURNO DE</p>
-                        <h2 id="current-player-num" class="player-name-display">Alex</h2>
-                    </div>
-                    <div class="instruction-icon">
-                        <i class="fa-solid fa-mobile-screen-button"></i>
-                    </div>
-                    <p style="text-align:center; margin-bottom:20px; color:var(--text-muted)">Pásale el móvil a este
-                        jugador
-                    </p>
-                    <button id="btn-reveal" class="btn-primary">VER MI ROL</button>
-                </div>
-            </section>
-
-            <!-- VISTA 3: REVELACIÓN -->
-            <section id="reveal-view" class="view hidden">
-                <div class="role-card" id="role-card-content">
-                    <!-- Contenido dinámico -->
-                </div>
-                <button id="btn-hide" class="btn-secondary">OCULTAR</button>
-            </section>
-
-            <!-- VISTA 4: JUEGO EN CURSO -->
-            <section id="game-view" class="view hidden">
-                <header>
-                    <h2>¡A JUGAR!</h2>
-                </header>
-
-                <div class="game-status">
-                    <div class="timer">
-                        <span id="timer-display">00:00</span>
-                    </div>
-
-                    <!-- Normal Status -->
-                    <p id="game-status-text">Turno de debate</p>
-
-                    <!-- Express UI -->
-                    <div id="express-ui" class="hidden" style="margin-top:20px;">
-                        <!-- Step 1: Select Who Starts -->
-                        <div id="express-start-selection">
-                            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">¿QUIÉN EMPIEZA?
-                            </p>
-                            <div id="express-start-list"
-                                style="display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:300px; overflow-y:auto;">
-                                <!-- Buttons generated by JS -->
-                            </div>
-                        </div>
-
-                        <!-- Step 2: The Game Loop (Hidden initially) -->
-                        <div id="express-active-game" class="hidden">
-                            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:5px;">TURNO DE PALABRA
-                            </p>
-                            <h2 id="express-player-name"
-                                style="color:var(--accent-blue); font-size:2rem; margin-bottom:20px;">
-                                Alex</h2>
-                            <button id="btn-express-next" class="btn-secondary"
-                                style="border-color:var(--accent-green); color:var(--accent-green); height:80px; font-size:1.5rem; margin-bottom:10px;">
-                                <i class="fa-solid fa-check"></i> PASAR
-                            </button>
-                            <button id="btn-express-vote" class="btn-text"
-                                style="color:var(--text-muted); font-size:0.9rem;">
-                                <i class="fa-solid fa-gavel"></i> Ir a Votación
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="actions">
-                    <button id="btn-start-vote" class="btn-primary" style="background:var(--accent-blue);">
-                        <i class="fa-solid fa-gavel"></i> VOTAR
-                    </button>
-                    <button id="btn-new-game" class="btn-secondary">NUEVA PARTIDA</button>
-                    <button id="btn-home" class="btn-text">Volver al Inicio</button>
-                </div>
-            </section>
-
-            <!-- VISTA 5: VOTACIÓN -->
-            <section id="voting-view" class="view hidden">
-                <header>
-                    <h2>VOTACIÓN</h2>
-                    <p>Toca al jugador para eliminarlo</p>
-                </header>
-
-                <div id="voting-grid"
-                    style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px; width:100%;">
-                    <!-- Cards generated dynamically -->
-                </div>
-            </section>
-
-            <!-- VISTA ONLINE 3: ROL -->
-            <section id="online-role-view" class="view hidden">
-                <div class="role-card" id="online-role-card">
-                    <div class="role-icon">
-                        <i id="online-icon" class="fa-solid fa-user-secret"></i>
-                    </div>
-                    <h2 id="online-role-name">TU ROL</h2>
-                    <div class="secret-word-box" id="online-word-display">---</div>
-                    <p id="online-hint-text" style="color:var(--accent-blue); margin-top:10px;"></p>
-                </div>
-                <!-- Botón entendido oculto inicialmente, o visible para cerrar -->
-                <button id="btn-close-role" class="btn-secondary" style="margin-top:20px;">ENTENDIDO</button>
-            </section>
+                <h2 id="online-role-name">TU ROL</h2>
+                <div class="secret-word-box" id="online-word-display">---</div>
+                <p id="online-hint-text" style="color:var(--accent-blue); margin-top:10px;"></p>
+            </div>
+            <!-- Botón entendido oculto inicialmente, o visible para cerrar -->
+            <button id="btn-close-role" class="btn-secondary" style="margin-top:20px;">ENTENDIDO</button>
+        </section>
     </main>
 
-    <script src="app.js"></script>
-    <script>
-        // Registrar Service Worker (Safe for file:// protocol)
+    <script src="game.js"></script>
+    <!-- Service Worker desactivado para evitar problemas de caché en desarrollo -->
+    <!-- <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
                 .then(reg => console.log('SW registrado', reg))
                 .catch(err => console.log('SW error (normal si es local/file):', err));
         }
-    </script>
+    </script> -->
 </body>
 
 </html>

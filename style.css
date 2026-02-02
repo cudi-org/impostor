@@ -99,16 +99,32 @@ body {
 }
 
 /* DEBUG: Visual check for active views */
+/* DEBUG: Visual check for active views */
 .view.active {
     display: flex !important;
     opacity: 1 !important;
-    z-index: 100 !important;
+    visibility: visible !important;
+    z-index: 999 !important;
     /* border: 2px solid yellow !important; */
     /* min-height: 100px; */
 }
 
 .hidden {
     display: none !important;
+}
+
+/* Asegura que la pantalla principal no bloquee las demás */
+#home-view.hidden {
+    display: none !important;
+    pointer-events: none;
+    z-index: -1 !important;
+}
+
+/* Fuerza la visibilidad de la lista de jugadores */
+#players-list {
+    min-height: 200px;
+    width: 100%;
+    display: block !important;
 }
 
 /* Header & Logo */
