@@ -22,21 +22,17 @@ body {
     background-color: var(--bg-color);
     color: var(--text-main);
     overflow: hidden;
-    /* Prevent scroll on body */
     height: 100vh;
     height: 100dvh;
-    /* Dynamic Value Height for mobile browsers */
     width: 100vw;
     display: flex;
     justify-content: center;
     align-items: center;
     position: fixed;
-    /* Lock body in place */
     top: 0;
     left: 0;
 }
 
-/* Background Blobs for Atmosphere */
 .background-blob {
     position: absolute;
     width: 300px;
@@ -79,17 +75,14 @@ body {
     display: flex;
     flex-direction: column;
     z-index: 1;
-    /* Ensure app is above background blobs */
 }
 
-/* Views Management */
 .view {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    /* Default hidden state */
     display: none;
     flex-direction: column;
     align-items: center;
@@ -98,36 +91,29 @@ body {
     z-index: 10;
 }
 
-/* DEBUG: Visual check for active views */
-/* DEBUG: Visual check for active views */
 .view.active {
     display: flex !important;
     opacity: 1 !important;
     visibility: visible !important;
     z-index: 999 !important;
-    /* border: 2px solid yellow !important; */
-    /* min-height: 100px; */
-}
+    }
 
 .hidden {
     display: none !important;
 }
 
-/* Asegura que la pantalla principal no bloquee las demás */
 #home-view.hidden {
     display: none !important;
     pointer-events: none;
     z-index: -1 !important;
 }
 
-/* Fuerza la visibilidad de la lista de jugadores */
 #players-list {
     min-height: 200px;
     width: 100%;
     display: block !important;
 }
 
-/* Header & Logo */
 .logo-container {
     text-align: center;
     margin-bottom: 30px;
@@ -159,7 +145,6 @@ p {
     font-size: 0.9rem;
 }
 
-/* Cards & Controls */
 .config-card {
     background: var(--card-bg);
     backdrop-filter: blur(16px);
@@ -185,7 +170,6 @@ p {
     color: var(--text-muted);
 }
 
-/* Counter */
 .counter-control {
     display: flex;
     align-items: center;
@@ -218,7 +202,6 @@ p {
     text-align: center;
 }
 
-/* Segmented Control */
 .segmented-control {
     display: flex;
     background: rgba(0, 0, 0, 0.2);
@@ -244,7 +227,6 @@ p {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Select */
 select {
     width: 100%;
     padding: 12px;
@@ -272,7 +254,6 @@ select option {
     color: #ffd1d1;
 }
 
-/* Buttons */
 .btn-primary {
     width: 100%;
     padding: 18px;
@@ -336,7 +317,6 @@ select option {
     cursor: pointer;
 }
 
-/* Pass View */
 .instruction-icon {
     font-size: 5rem;
     color: var(--primary);
@@ -364,7 +344,6 @@ select option {
     }
 }
 
-/* Role Card */
 .role-card {
     background: var(--card-bg);
     border: var(--glass-border);
@@ -402,7 +381,6 @@ select option {
     letter-spacing: 2px;
 }
 
-/* Game View */
 .game-status {
     text-align: center;
     margin: 40px 0;
@@ -424,7 +402,6 @@ select option {
     margin-bottom: 40px;
 }
 
-/* Utilities */
 .hidden {
     display: none !important;
 }
@@ -439,10 +416,6 @@ select option {
     }
 }
 
-/* ... existing code ... */
-
-/* Player Names Grid */
-/* Player Names List - Compact */
 .players-grid {
     display: flex;
     flex-direction: column;
@@ -478,7 +451,6 @@ select option {
     color: rgba(255, 255, 255, 0.3);
 }
 
-/* Scrollbar styling for player list */
 .players-grid::-webkit-scrollbar {
     width: 6px;
 }
